@@ -1,0 +1,22 @@
+﻿Build started 5/18/2015 7:55:16 PM.
+     1>Project "C:\Users\Grimshaw\Documents\Daniel\Fractal\Fractal\Fractal.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt window.cpp
+         window.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Grimshaw\Documents\Daniel\Fractal\Debug\Fractal.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\Users\Grimshaw\Documents\Daniel\OpenGL\lib opengl32.lib glew32s.lib glfw3.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Grimshaw\Documents\Daniel\Fractal\Debug\Fractal.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Grimshaw\Documents\Daniel\Fractal\Debug\Fractal.lib" /MACHINE:X86 Debug\window.obj
+     1>LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+     1>window.obj : error LNK2019: unresolved external symbol _glfwInit referenced in function _main
+     1>window.obj : error LNK2019: unresolved external symbol _glfwTerminate referenced in function _main
+     1>window.obj : error LNK2019: unresolved external symbol _glfwWindowHint referenced in function _main
+     1>window.obj : error LNK2019: unresolved external symbol _glfwCreateWindow referenced in function _main
+     1>window.obj : error LNK2019: unresolved external symbol _glfwWindowShouldClose referenced in function _main
+     1>window.obj : error LNK2019: unresolved external symbol _glfwPollEvents referenced in function _main
+     1>window.obj : error LNK2019: unresolved external symbol _glfwMakeContextCurrent referenced in function _main
+     1>window.obj : error LNK2019: unresolved external symbol _glfwSwapBuffers referenced in function _main
+     1>C:\Users\Grimshaw\Documents\Daniel\Fractal\Debug\Fractal.exe : fatal error LNK1120: 8 unresolved externals
+     1>Done Building Project "C:\Users\Grimshaw\Documents\Daniel\Fractal\Fractal\Fractal.vcxproj" (Rebuild target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:01.35
