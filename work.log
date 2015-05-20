@@ -1,0 +1,29 @@
+                                Log
+05/11/2015:
+	1) I programmed the common code of the fractal package and fixed the
+	coloring of Mandelbrot.
+	2) Tomorrow I would like to finish Image.
+	3) I found it surprising that I had to use different algorithms for
+	coloring the Julia and Mandelbrot sets.
+
+05/12/2015:
+	1) I started work on Image.
+	2) Tomorrow I would like to finally finish Image.
+	3) I found that I had added an extra space between main and its
+	arguments in Mandelbrot and Julia.
+
+05/14/2015:
+	1) Worked on fixing compilation problems with OpenGL.
+	2) Tomorrow I would like to finally finish Image.
+	3) You cannot cross compile from headless Linux to windows with
+	openGL.
+
+05/18/2015:
+	1) Today I successfully compiled and ran an OpenGL window. Currently
+	it is only capable of changing the entire background at once, but I
+	am currently working on learning how to draw on the canvas itself.
+	2) Tomorrow I would like to get the OpenGL context capable of
+	drawing two dimensional shapes.
+	3) OpenGL itself does not actually implement a windowing system. I
+	had to use GLFW3 along with it. My code also does not actually know
+	where any of the graphics related functions are at compile time.
