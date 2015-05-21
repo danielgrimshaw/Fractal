@@ -1,4 +1,4 @@
-﻿Build started 5/18/2015 8:56:39 PM.
+﻿Build started 5/20/2015 8:23:16 PM.
      1>Project "C:\Users\Grimshaw\Documents\Daniel\Fractal\Fractal\Fractal.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt window.cpp
@@ -10,4 +10,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:06.30
+Time Elapsed 00:00:01.11

@@ -71,7 +71,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>C:\Users\Grimshaw\Documents\Daniel\Fractal\Dependencies\OpenGL\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Grimshaw\Documents\Daniel\Fractal\Dependencies\OpenGL\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Grimshaw\Documents\Daniel\Fractal\Dependencies\OpenGL\lib\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>C:\Users\Grimshaw\Documents\Daniel\OpenGL\include;$(IncludePath)</IncludePath>
@@ -79,7 +79,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\Users\Grimshaw\Documents\Daniel\Fractal\Dependencies\OpenGL\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Grimshaw\Documents\Daniel\Fractal\Dependencies\OpenGL\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\Grimshaw\Documents\Daniel\Fractal\Dependencies\OpenGL\lib\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
