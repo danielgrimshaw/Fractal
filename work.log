@@ -29,12 +29,19 @@
 	where any of the graphics related functions are at compile time.
 
 05/20/2015:
-	1) Today I finally got the output working in the window. I was supposed
-	to have the algorithms completed for drawing the fractals, but that
-	ended up being too much.
-	2) Tomorrow I would like to implement the fractals as fragment shaders.
-	I will need to look up exactly how fragment shaders work, but I think
-	that it will work better with fragment shaders than with vertex
-	shaders.
-	3) It takes about fifty lines of code just to draw a flat shaded orange
-	triangle.
+	1) Today I finally got the output working in the window. I was
+	supposed to have the algorithms completed for drawing the fractals,
+	but that ended up being too much.
+	2) Tomorrow I would like to implement the fractals as fragment
+	shaders. I will need to look up exactly how fragment shaders work,
+	but I think that it will work better with fragment shaders than with
+	vertex shaders.
+	3) It takes about fifty lines of code just to draw a flat shaded
+	orange triangle.
+
+5/21/2015:
+	1) Today I wrote a class for shader programs. I will need to rewrite
+	the current version of window.cpp to use this Shader class
+	(partially complete already).
+	2) Rewrite window.cpp and shaders to use the Shader class.
+	3) After writing Shader, it only takes five lines to use any shader.
