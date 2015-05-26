@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iostream>
 
-#include <GL/glew.h>;
+#include <GL/glew.h>
 
 class Shader {
 public:
@@ -21,6 +21,10 @@ public:
 			std::ifstream vShaderFile(vertexPath);
 			std::ifstream fShaderFile(fragmentPath);
 			std::stringstream vShaderStream, fShaderStream;
+			if (!(vShaderFile.is_open()))
+				std::cout << "ERROR::UNABLE TO OPEN " << vertexPath << std::endl;
+			if (!(fShaderFile.is_open()))
+				std::cout << "ERROR::UNABLE TO OPEN " << fragmentPath << std::endl;
 			// Read buffers into streams
 			vShaderStream << vShaderFile.rdbuf();
 			fShaderStream << fShaderFile.rdbuf();
@@ -41,6 +45,8 @@ public:
 		GLuint vertex, fragment;
 		GLint success;
 		GLchar infoLog[512];
+
+		std::cout << vShaderCode << std::endl;
 
 		// Vertex Shader
 		vertex = glCreateShader(GL_VERTEX_SHADER);
@@ -67,7 +73,7 @@ public:
 		glAttachShader(this->program, fragment);
 		glLinkProgram(this->program);
 
-		glGetProgramiv(this->program, 512, NULL, &success);
+		glGetProgramiv(this->program, GL_LINK_STATUS, &success);
 		if (!success) {
 			glGetProgramInfoLog(this->program, 512, NULL, infoLog);
 			std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;

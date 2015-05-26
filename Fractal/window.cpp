@@ -13,22 +13,6 @@
 
 void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode);
 
-const GLchar * vertexShaderSource = "#version 330 core\n"
-	"layout (location = 0) in vec3 position;\n"
-	"layout (location = 1) in vec3 color;\n"
-	"out vec3 theColor;\n"
-	"void main() {\n"
-	"gl_Position = vec4(position, 1.0);\n"
-	"theColor = color;\n"
-	"}\0";
-
-const GLchar * fragmentShaderSource = "#version 330 core\n"
-	"in vec3 theColor;\n"
-	"out vec4 color;\n"
-	"//uniform vec4 theColor;\n"
-	"void main() {\n"
-	"color = vec4(theColor, 1.0f);\n"
-	"}\0";
 int main() {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -54,7 +38,7 @@ int main() {
 	glViewport(0, 0, 800, 600);
 	glfwSetKeyCallback(window, key_callback);
 
-	Shader shader("", "");
+	Shader shader("C:\\Users\\Grimshaw\\Documents\\Daniel\\Fractal\\Fractal\\vertex.vs", "C:\\Users\\Grimshaw\\Documents\\Daniel\\Fractal\\Fractal\\fragment.frag");
 
 	GLfloat vertices[] = {
 		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -102,11 +86,7 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//	Draw triangle
-		glUseProgram(shaderProgram);
-		GLfloat timeValue = glfwGetTime();
-		GLfloat greenValue = (sin(timeValue) / 2) + 0.5;
-		GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "theColor");
-		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		shader.use();
 		glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLES, 0, 6);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -115,6 +95,8 @@ int main() {
 		glfwSwapBuffers(window);
 	}
 
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
 	glfwTerminate();
 	return 0;
 }
