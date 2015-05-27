@@ -38,7 +38,7 @@ int main() {
 	glViewport(0, 0, 800, 600);
 	glfwSetKeyCallback(window, key_callback);
 
-	Shader shader("C:\\Users\\Grimshaw\\Documents\\Daniel\\Fractal\\Fractal\\vertex.vs", "C:\\Users\\Grimshaw\\Documents\\Daniel\\Fractal\\Fractal\\fragment.frag");
+	Shader shader("../../Fractal/vertex.vs", "../../Fractal/fragment.frag");
 
 	GLfloat vertices[] = {
 		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
