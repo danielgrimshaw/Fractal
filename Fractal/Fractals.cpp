@@ -1,165 +1,140 @@
-// STDIO
-#include <iostream>
-// GLEW
-#define GLEW_STATIC
+#include <stdio.h>
+#include <stdlib.h>
 #include <GL/glew.h>
-// GLFW
-#include <GLFW/glfw3.h>
+#include <GL/glut.h>
+#include "util.h"
 
-#include "Shader.h"
+void draw(void);
+void idle_handler(void);
+void key_handler(unsigned char key, int x, int y);
+void bn_handler(int bn, int state, int x, int y);
+void mouse_handler(int x, int y);
 
-int width = 600, height = 600; // window size
-int windowID;
-GLFWwindow * window;
+unsigned int prog;
+float cx = 0.7, cy = 0.0;
+float scale = 2.2;
+int iter = 70;
+const float zoom_factor = 0.025;
 
-GLfloat minX = -2.2f, maxX = 0.8f, minY = -1.5f, maxY = 1.5; // complex plane boundaries
-GLfloat stepX = (maxX - minX) / (GLfloat)width;
-GLfloat stepY = (maxY - minY) / (GLfloat)height;
+int main(int argc, char **argv) {
+	void *img;
 
-GLfloat black[] = { 0.0f, 0.0f, 0.0f }; // black color
-const int paletteSize = 128;
-GLfloat palette[paletteSize][3];
+	/* initialize glut */
+	glutInitWindowSize(800, 600);
 
-const GLfloat radius = 5.0f;
-bool fullScreen = false;
-
-GLfloat* calculateColor(GLfloat u, GLfloat v){
-	GLfloat re = u;
-	GLfloat im = v;
-	GLfloat tempRe = 0.0;
-	for (int i = 0; i < paletteSize; i++){
-		tempRe = re*re - im*im + u;
-		im = re * im * 2 + v;
-		re = tempRe;
-		if ((re*re + im*im) > radius){
-			return palette[i];
-		}
-	}
-	return black;
-}
-
-void repaint() {// function called to repaint the window
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen buffer
-	glBegin(GL_POINTS); // start drawing in single pixel mode
-	for (GLfloat y = maxY; y >= minY; y -= stepY){
-		for (GLfloat x = minX; x <= maxX; x += stepX){
-			glColor3fv(calculateColor(x, y)); // set color
-			glVertex3f(x, y, 0.0f); // put pixel on screen (buffer)
-		}
-	}
-	glEnd(); // end drawing
-	glfwSwapBuffers(window); // swap the buffers
-}
-
-//****************************************
-void reshape(int w, int h){ // function called when window size is changed
-	stepX = (maxX - minX) / (GLfloat)w; // calculate new value of step along X axis
-	stepY = (maxY - minY) / (GLfloat)h; // calculate new value of step along Y axis
-	glViewport(0, 0, (GLsizei)w, (GLsizei)h); // set new dimension of viewable screen
-	glutPostRedisplay(); // repaint the window
-}
-
-//****************************************
-void keyFunction(unsigned char key, int x, int y){ // function to handle key pressing
-	switch (key){
-	case 'F': // pressing F is turning on/off fullscreen mode
-	case 'f':
-		if (fullScreen){
-			glutReshapeWindow(width, height); // sets default window size
-			GLsizei windowX = (glutGet(GLUT_SCREEN_WIDTH) - width) / 2;
-			GLsizei windowY = (glutGet(GLUT_SCREEN_HEIGHT) - height) / 2;
-			glutPositionWindow(windowX, windowY); // centers window on the screen
-			fullScreen = false;
-		}
-		else{
-			fullScreen = true;
-			glutFullScreen(); // go to fullscreen mode
-		}
-		glutPostRedisplay();
-		break;
-	case 27: // escape key - close the program
-		glutDestroyWindow(windowID);
-		exit(0);
-		break;
-	}
-}
-
-//****************************************
-void createPalette(){
-	for (int i = 0; i < 32; i++){
-		palette[i][0] = (8 * i) / (GLfloat)255;
-		palette[i][1] = (128 - 4 * i) / (GLfloat)255;
-		palette[i][2] = (255 - 8 * i) / (GLfloat)255;
-	}
-	for (int i = 0; i < 32; i++){
-		palette[32 + i][0] = (GLfloat)1;
-		palette[32 + i][1] = (8 * i) / (GLfloat)255;
-		palette[32 + i][2] = (GLfloat)0;
-	}
-	for (int i = 0; i < 32; i++){
-		palette[64 + i][0] = (128 - 4 * i) / (GLfloat)255;
-		palette[64 + i][1] = (GLfloat)1;
-		palette[64 + i][2] = (8 * i) / (GLfloat)255;
-	}
-	for (int i = 0; i < 32; i++){
-		palette[96 + i][0] = (GLfloat)0;
-		palette[96 + i][1] = (255 - 8 * i) / (GLfloat)255;
-		palette[96 + i][2] = (8 * i) / (GLfloat)255;
-	}
-}
-
-//****************************************
-int main(int argc, char** argv){
 	glutInit(&argc, argv);
-	createPalette();
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	GLsizei windowX = (glutGet(GLUT_SCREEN_WIDTH) - width) / 2;
-	GLsizei windowY = (glutGet(GLUT_SCREEN_HEIGHT) - height) / 2;
-	glutInitWindowPosition(windowX, windowY);
-	glutInitWindowSize(width, height);
-	windowID = glutCreateWindow("FRAKTALE");
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+	glutCreateWindow("Mindlapse :: GLSL Mandelbrot");
 
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_DEPTH_TEST);
-	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(minX, maxX, minY, maxY, ((GLfloat)-1), (GLfloat)1);
+	glutDisplayFunc(draw);
+	glutIdleFunc(idle_handler);
+	glutKeyboardFunc(key_handler);
+	glutMouseFunc(bn_handler);
+	glutMotionFunc(mouse_handler);
 
-	// set the event handling methods
-	glutDisplayFunc(repaint);
-	glutReshapeFunc(reshape);
-	glutKeyboardFunc(keyFunction);
+	/* load the 1D palette texture */
+	glBindTexture(GL_TEXTURE_1D, 1);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+
+	if (!(img = load_image("pal.ppm", 0, 0))) {
+		return EXIT_FAILURE;
+	}
+	glTexImage1D(GL_TEXTURE_1D, 0, 4, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, img);
+	free(img);
+
+	glEnable(GL_TEXTURE_1D);
+
+	/* load and set the mandelbrot shader */
+	if (!(prog = setup_shader("mbrot.glsl"))) {
+		return EXIT_FAILURE;
+	}
+	set_uniform1i(prog, "iter", iter);
 
 	glutMainLoop();
-
 	return 0;
 }
-int main() {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
+void draw(void) {
+	set_uniform2f(prog, "center", cx, cy);
+	set_uniform1f(prog, "scale", scale);
 
-	GLFWwindow * window = glfwCreateWindow(800, 600, "First OpenGL window", nullptr, nullptr);
-	glfwMakeContextCurrent(window);
-	if (window == NULL) {
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
+	glBegin(GL_QUADS);
+	glTexCoord2f(0, 0);
+	glVertex2f(-1, -1);
+	glTexCoord2f(1, 0);
+	glVertex2f(1, -1);
+	glTexCoord2f(1, 1);
+	glVertex2f(1, 1);
+	glTexCoord2f(0, 1);
+	glVertex2f(-1, 1);
+	glEnd();
+
+	glutSwapBuffers();
+}
+
+void idle_handler(void) {
+	glutPostRedisplay();
+}
+
+void key_handler(unsigned char key, int x, int y) {
+	switch (key) {
+	case 27:
+	case 'q':
+	case 'Q':
+		exit(0);
+
+	case '=':
+		if (1) {
+			iter += 10;
+		}
+		else {
+	case '-':
+		iter -= 10;
+		if (iter < 0) iter = 0;
+		}
+		printf("iterations: %d\n", iter);
+		set_uniform1i(prog, "iter", iter);
+		break;
+
+	default:
+		break;
+	}
+}
+
+int which_bn;
+float px, py;
+
+void bn_handler(int bn, int state, int x, int y) {
+	int xres = glutGet(GLUT_WINDOW_WIDTH);
+	int yres = glutGet(GLUT_WINDOW_HEIGHT);
+	px = 2.0 * ((float)x / (float)xres - 0.5);
+	py = 2.0 * ((float)y / (float)yres - 0.5);
+	which_bn = bn;
+
+	if (which_bn == 3) {
+		scale *= 1 - zoom_factor * 2.0;
+	}
+	else if (which_bn == 4) {
+		scale *= 1 + zoom_factor * 2.0;;
+	}
+}
+
+void mouse_handler(int x, int y) {
+	int xres = glutGet(GLUT_WINDOW_WIDTH);
+	int yres = glutGet(GLUT_WINDOW_HEIGHT);
+	float fx = 2.0 * ((float)x / (float)xres - 0.5);
+	float fy = 2.0 * ((float)y / (float)yres - 0.5);
+
+	if (which_bn == 1) {
+		cx += (fx - px) * scale / 2.0;
+		cy -= (fy - py) * scale / 2.0;
+	}
+	else if (which_bn == 0) {
+		scale *= (fy - py < 0.0) ? 1 - zoom_factor : 1 + zoom_factor;
 	}
 
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK) {
-		std::cout << "Failed to initialize GLEW" << std::endl;
-		return -1;
-	}
-
-	glViewport(0, 0, 800, 600);
-	glfwSetKeyCallback(window, key_callback);
-
-
+	px = fx;
+	py = fy;
 }
