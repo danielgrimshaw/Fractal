@@ -1,22 +1,19 @@
-﻿Build started 5/27/2015 8:22:41 PM.
+﻿Build started 5/28/2015 10:24:43 AM.
      1>Project "C:\Users\Grimshaw\Documents\Daniel\Fractal\Fractal\Fractal.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /Od /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TC /errorReport:prompt Fractals.c util.c
-     1>cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /Od /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TC /errorReport:prompt Fractals.c
          Fractals.c
-     1>Fractals.c(14): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>Fractals.c(15): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>Fractals.c(17): warning C4305: 'initializing' : truncation from 'double' to 'const float'
-     1>Fractals.c(112): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>Fractals.c(113): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>Fractals.c(117): warning C4244: '*=' : conversion from 'double' to 'float', possible loss of data
+     1>Fractals.c(17): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>Fractals.c(18): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>Fractals.c(20): warning C4305: 'initializing' : truncation from 'double' to 'const float'
+     1>Fractals.c(115): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>Fractals.c(116): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
      1>Fractals.c(120): warning C4244: '*=' : conversion from 'double' to 'float', possible loss of data
-     1>Fractals.c(127): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>Fractals.c(128): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>Fractals.c(131): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
-     1>Fractals.c(132): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
-         util.c
-         Generating Code...
+     1>Fractals.c(123): warning C4244: '*=' : conversion from 'double' to 'float', possible loss of data
+     1>Fractals.c(130): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>Fractals.c(131): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>Fractals.c(134): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>Fractals.c(135): warning C4244: '-=' : conversion from 'double' to 'float', possible loss of data
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Grimshaw\Documents\Daniel\Fractal\x64\Debug\Fractal.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\Users\Grimshaw\Documents\Daniel\Fractal\Dependencies\OpenGL\lib opengl32.lib glew32s.lib freeglutd.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Grimshaw\Documents\Daniel\Fractal\x64\Debug\Fractal.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Grimshaw\Documents\Daniel\Fractal\x64\Debug\Fractal.lib" /MACHINE:X64 x64\Debug\Fractals.obj
          x64\Debug\util.obj
@@ -25,4 +22,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.93
+Time Elapsed 00:00:00.98

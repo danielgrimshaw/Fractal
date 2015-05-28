@@ -148,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="frament.frag" />
+    <None Include="mbrot.glsl" />
     <None Include="vector.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

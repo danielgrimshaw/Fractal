@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef GLEW_STATIC
+#define GLEW_STATIC
+#endif
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include "util.h"
