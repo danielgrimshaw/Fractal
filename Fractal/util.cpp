@@ -22,23 +22,23 @@
 
 #ifdef __unix__
 GLhandleARB glCreateShaderObjectARB(GLenum);
-void glShaderSourceARB(GLhandleARB, int, const char**, int*);
+void glShaderSourceARB(GLhandleARB, int, const char **, int *);
 void glCompileShaderARB(GLhandleARB);
 GLhandleARB glCreateProgramObjectARB(void);
 void glAttachObjectARB(GLhandleARB, GLhandleARB);
 void glLinkProgramARB(GLhandleARB);
 void glUseProgramObjectARB(GLhandleARB);
-void glGetInfoLogARB(GLhandleARB, GLsizei, GLsizei*, GLcharARB*);
-void glGetObjectParameterivARB(GLhandleARB, GLenum, int*);
-GLint glGetUniformLocationARB(GLhandleARB, const char*);
+void glGetInfoLogARB(GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+void glGetObjectParameterivARB(GLhandleARB, GLenum, int *);
+GLint glGetUniformLocationARB(GLhandleARB, const char *);
 void glUniform1f(GLint location, GLfloat v0);
 void glUniform1i(GLint location, GLint v0);
 void glUniform2f(GLint location, GLfloat v0, GLfloat v1);
 #endif
 
 
-int check_ppm(FILE *fp);
-void *load_ppm(FILE *fp, unsigned long *xsz, unsigned long *ysz);
+int check_ppm(std::ifstream & fp);
+void * load_ppm(std::fstream & fp, unsigned long *xsz, unsigned long *ysz);
 
 typedef unsigned int uint32_t;
 
@@ -156,37 +156,41 @@ void set_uniform1i(unsigned int prog, const char *name, int val) {
 #define PACK_COLOR24(r, g, b) (((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff))
 #endif
 
-void *load_image(const char *fname, unsigned long *xsz, unsigned long *ysz) { // TODO: rewrite this
+void * load_image(const char *fname, unsigned long *xsz, unsigned long *ysz) { // TODO: rewrite this
 	using namespace std;
-	FILE *fp = fopen(fname, "r");
-	if (!fp) {
+	ifstream fp(fname);
+	if (!(fp.is_open())) {
 		cerr << "failed to open: " << fname << endl;
-		return (void *)EXIT_FAILURE;
+		return 0;
 	}
 
 	if (check_ppm(fp)) {
-		return load_ppm(fp, xsz, ysz);
+		fstream rw(fname);
+		return load_ppm(rw, xsz, ysz);
+		rw.close();
 	}
 
-	fclose(fp);
+	fp.close();
 	cerr << "unsupported image format" << endl;
 	return 0;
 }
 
-int check_ppm(std::ifstream fp) {
-	fseek(fp, 0, SEEK_SET);
+int check_ppm(std::ifstream & fp) {
+	using namespace std;
+	fp.seekg(0, ios::beg);
 	if (fp.get() == 'P' && fp.get() == '6') {
 		return 1;
 	}
 	return 0;
 }
 
-static int read_to_wspace(std::fstream fp, char *buf, int bsize) {
-	int c, count = 0;
+static int read_to_wspace(std::fstream & fp, char * buf, int bsize) {
+	int count = 0;
+	char c;
 
-	while ((c = fp.get()) != -1 && !isspace(c) && count < bsize - 1) {
+	while (fp.get(c) && !isspace(c) && count < bsize - 1) {
 		if (c == '#') {
-			while ((c = fp.get()) != -1 && c != '\n' && c != '\r');
+			while (fp.get(c) && c != '\n' && c != '\r');
 			c = fp.get();
 			if (c == '\n' || c == '\r') continue;
 		}
@@ -195,12 +199,12 @@ static int read_to_wspace(std::fstream fp, char *buf, int bsize) {
 	}
 	*buf = 0;
 
-	while ((c = fp.get()) != -1 && isspace(c));
-	ungetc(c, fp); // NEED TO LOOKUP HOW TO FIX THIS AGAIN
+	while (fp.get(c) && isspace(c));
+	fp.write(&c, 1);
 	return count;
 }
 
-void *load_ppm(std::fstream fp, unsigned long *xsz, unsigned long *ysz) {
+void * load_ppm(std::fstream & fp, unsigned long *xsz, unsigned long *ysz) {
 	using namespace std;
 	char buf[64];
 	int bytes, raw;

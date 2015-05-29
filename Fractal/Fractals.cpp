@@ -14,13 +14,13 @@ void bn_handler(int bn, int state, int x, int y);
 void mouse_handler(int x, int y);
 
 unsigned int prog;
-float cx = 0.7, cy = 0.0;
-float scale = 2.2;
+float cx = 0.7f, cy = 0.0f;
+float scale = 2.2f;
 int iter = 70;
-const float zoom_factor = 0.025;
+const float zoom_factor = 0.025f;
 
-int main(int argc, char **argv) {
-	void *img;
+int main(int argc, char ** argv) {
+	void * img;
 
 	/* initialize glut */
 	glutInitWindowSize(800, 600);
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 	glTexImage1D(GL_TEXTURE_1D, 0, 4, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, img);
-	free(img);
+	delete img;
 
 	glEnable(GL_TEXTURE_1D);
 
@@ -112,27 +112,27 @@ float px, py;
 void bn_handler(int bn, int state, int x, int y) {
 	int xres = glutGet(GLUT_WINDOW_WIDTH);
 	int yres = glutGet(GLUT_WINDOW_HEIGHT);
-	px = 2.0 * ((float)x / (float)xres - 0.5);
-	py = 2.0 * ((float)y / (float)yres - 0.5);
+	px = 2.0f * ((float)x / (float)xres - 0.5f);
+	py = 2.0f * ((float)y / (float)yres - 0.5f);
 	which_bn = bn;
 
 	if (which_bn == 3) {
-		scale *= 1 - zoom_factor * 2.0;
+		scale *= 1 - zoom_factor * 2.0f;
 	}
 	else if (which_bn == 4) {
-		scale *= 1 + zoom_factor * 2.0;;
+		scale *= 1 + zoom_factor * 2.0f;
 	}
 }
 
 void mouse_handler(int x, int y) {
 	int xres = glutGet(GLUT_WINDOW_WIDTH);
 	int yres = glutGet(GLUT_WINDOW_HEIGHT);
-	float fx = 2.0 * ((float)x / (float)xres - 0.5);
-	float fy = 2.0 * ((float)y / (float)yres - 0.5);
+	float fx = 2.0f * ((float)x / (float)xres - 0.5f);
+	float fy = 2.0f * ((float)y / (float)yres - 0.5f);
 
 	if (which_bn == 1) {
-		cx += (fx - px) * scale / 2.0;
-		cy -= (fy - py) * scale / 2.0;
+		cx += (fx - px) * scale / 2.0f;
+		cy -= (fy - py) * scale / 2.0f;
 	}
 	else if (which_bn == 0) {
 		scale *= (fy - py < 0.0) ? 1 - zoom_factor : 1 + zoom_factor;
