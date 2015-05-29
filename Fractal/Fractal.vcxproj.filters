@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Fractals.c">
+    <ClCompile Include="Fractals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="util.c">
+    <ClCompile Include="util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -28,14 +28,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="frament.frag">
+    <Text Include="frament.frag">
       <Filter>Resource Files</Filter>
-    </None>
-    <None Include="vector.vs">
+    </Text>
+    <Text Include="mbrot.glsl">
       <Filter>Resource Files</Filter>
-    </None>
-    <None Include="mbrot.glsl">
+    </Text>
+    <Text Include="vector.vs">
       <Filter>Resource Files</Filter>
-    </None>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="freeglutd.lib">
+      <Filter>Resource Files</Filter>
+    </Library>
   </ItemGroup>
 </Project>
