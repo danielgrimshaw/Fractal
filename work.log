@@ -74,3 +74,9 @@
 	3) Nobody has invented a way for C to do exception handling yet.
 	Visual Studio also should realize that there is no way to handle an
 	exception in C.
+
+5/29/2015:
+	1) Today I finished reprogramming the entire project so far into C++
+	again.
+	2) Tomorrow I will work on programming a shader for the Julia fractal.
+	3) Visual Studio can not pass copies of C++ objects.
