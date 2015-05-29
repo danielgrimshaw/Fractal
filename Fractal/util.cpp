@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string>
+#include <iostream>
+#include <fstream>
 
 #ifndef GLEW_STATIC
 #define GLEW_STATIC
@@ -56,26 +59,24 @@ unsigned long get_msec(void) {
 }
 
 unsigned int setup_shader(const char *fname) {
-	FILE * fp;
+	using namespace std;
 	unsigned int prog, sdr, len;
-	char *src_buf;
+	char * src_buf;
 	int success, linked;
+	ifstream t;
 
-	if (!(fp = fopen(fname, "r"))) {
-		fprintf(stderr, "failed to open shader: %s\n", fname);
-		return 0;
-	}
-	fseek(fp, 0, SEEK_END);
-	len = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	src_buf = (char *)malloc(len + 1);
-
-	fread(src_buf, 1, len, fp);
+	t.open(fname);
+	t.seekg(0, ios::end);
+	len = t.tellg();
+	t.seekg(0, ios::beg);
+	src_buf = new char[len+1];
+	t.read(src_buf, len);
+	t.close();
 	src_buf[len] = 0;
 
 	sdr = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 	glShaderSourceARB(sdr, 1, (const char**)&src_buf, 0);
-	free(src_buf);
+	delete [] src_buf;
 
 	glCompileShaderARB(sdr);
 	glGetObjectParameterivARB(sdr, GL_OBJECT_COMPILE_STATUS_ARB, &success);
@@ -85,16 +86,16 @@ unsigned int setup_shader(const char *fname) {
 
 		glGetObjectParameterivARB(sdr, GL_OBJECT_INFO_LOG_LENGTH_ARB, &info_len);
 		if (info_len > 0) {
-			if (!(info_log = (char *)malloc(info_len + 1))) {
-				perror("malloc failed");
+			if (!(info_log = new char[info_len + 1])) {
+				cerr << "Unable to allocate info_log (util.cpp: line 90)" << endl;
 				return 0;
 			}
 			glGetInfoLogARB(sdr, info_len, 0, info_log);
-			fprintf(stderr, "shader compilation failed: %s\n", info_log);
-			free(info_log);
+			cerr << "shader compilation failed: " << info_log << endl;
+			delete [] info_log;
 		}
 		else {
-			fprintf(stderr, "shader compilation failed\n");
+			cerr << "shader compilation failed" << endl;
 		}
 		return 0;
 	}
@@ -104,7 +105,7 @@ unsigned int setup_shader(const char *fname) {
 	glLinkProgramARB(prog);
 	glGetObjectParameterivARB(prog, GL_OBJECT_LINK_STATUS_ARB, &linked);
 	if (!linked) {
-		fprintf(stderr, "shader linking failed\n");
+		cerr << "shader linking failed" << endl;
 		return 0;
 	}
 
@@ -155,11 +156,12 @@ void set_uniform1i(unsigned int prog, const char *name, int val) {
 #define PACK_COLOR24(r, g, b) (((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff))
 #endif
 
-void *load_image(const char *fname, unsigned long *xsz, unsigned long *ysz) {
+void *load_image(const char *fname, unsigned long *xsz, unsigned long *ysz) { // TODO: rewrite this
+	using namespace std;
 	FILE *fp = fopen(fname, "r");
 	if (!fp) {
-		fprintf(stderr, "failed to open: %s\n", fname);
-		return 0;
+		cerr << "failed to open: " << fname << endl;
+		return (void *)EXIT_FAILURE;
 	}
 
 	if (check_ppm(fp)) {
@@ -167,25 +169,25 @@ void *load_image(const char *fname, unsigned long *xsz, unsigned long *ysz) {
 	}
 
 	fclose(fp);
-	fprintf(stderr, "unsupported image format\n");
+	cerr << "unsupported image format" << endl;
 	return 0;
 }
 
-int check_ppm(FILE *fp) {
+int check_ppm(std::ifstream fp) {
 	fseek(fp, 0, SEEK_SET);
-	if (fgetc(fp) == 'P' && fgetc(fp) == '6') {
+	if (fp.get() == 'P' && fp.get() == '6') {
 		return 1;
 	}
 	return 0;
 }
 
-static int read_to_wspace(FILE *fp, char *buf, int bsize) {
+static int read_to_wspace(std::fstream fp, char *buf, int bsize) {
 	int c, count = 0;
 
-	while ((c = fgetc(fp)) != -1 && !isspace(c) && count < bsize - 1) {
+	while ((c = fp.get()) != -1 && !isspace(c) && count < bsize - 1) {
 		if (c == '#') {
-			while ((c = fgetc(fp)) != -1 && c != '\n' && c != '\r');
-			c = fgetc(fp);
+			while ((c = fp.get()) != -1 && c != '\n' && c != '\r');
+			c = fp.get();
 			if (c == '\n' || c == '\r') continue;
 		}
 		*buf++ = c;
@@ -193,76 +195,77 @@ static int read_to_wspace(FILE *fp, char *buf, int bsize) {
 	}
 	*buf = 0;
 
-	while ((c = fgetc(fp)) != -1 && isspace(c));
-	ungetc(c, fp);
+	while ((c = fp.get()) != -1 && isspace(c));
+	ungetc(c, fp); // NEED TO LOOKUP HOW TO FIX THIS AGAIN
 	return count;
 }
 
-void *load_ppm(FILE *fp, unsigned long *xsz, unsigned long *ysz) {
+void *load_ppm(std::fstream fp, unsigned long *xsz, unsigned long *ysz) {
+	using namespace std;
 	char buf[64];
 	int bytes, raw;
 	unsigned int w, h, i, sz;
 	uint32_t *pixels;
 
-	fseek(fp, 0, SEEK_SET);
+	fp.seekg(0, ios::beg);
 
 	bytes = read_to_wspace(fp, buf, 64);
 	raw = buf[1] == '6';
 
 	if ((bytes = read_to_wspace(fp, buf, 64)) == 0) {
-		fclose(fp);
+		fp.close();
 		return 0;
 	}
 	if (!isdigit(*buf)) {
-		fprintf(fp, "load_ppm: invalid width: %s", buf);
-		fclose(fp);
+		fp << "load_ppm: invalid width: " << buf;
+		fp.close();
 		return 0;
 	}
 	w = atoi(buf);
 
 	if ((bytes = read_to_wspace(fp, buf, 64)) == 0) {
-		fclose(fp);
+		fp.close();
 		return 0;
 	}
 	if (!isdigit(*buf)) {
-		fprintf(fp, "load_ppm: invalid height: %s", buf);
-		fclose(fp);
+		fp << "load_ppm: invalid height: " << buf;
+		fp.close();
 		return 0;
 	}
 	h = atoi(buf);
 
 	if ((bytes = read_to_wspace(fp, buf, 64)) == 0) {
-		fclose(fp);
+		fp.close();
 		return 0;
 	}
 	if (!isdigit(*buf) || atoi(buf) != 255) {
-		fprintf(fp, "load_ppm: invalid or unsupported max value: %s", buf);
-		fclose(fp);
+		fp << "load_ppm: invalid or unsupported max value: " << buf;
+		fp.close();
 		return 0;
 	}
 
-	if (!(pixels = (uint32_t *)malloc(w * h * sizeof *pixels))) {
-		fputs("malloc failed", fp);
-		fclose(fp);
+	if (!(pixels = new uint32_t[w * h])) {
+		fp << "malloc failed";
+		fp.close();
 		return 0;
 	}
 
 	sz = h * w;
 	for (i = 0; i<sz; i++) {
-		int r = fgetc(fp);
-		int g = fgetc(fp);
-		int b = fgetc(fp);
+		int r = fp.get();
+		int g = fp.get();
+		int b = fp.get();
 
 		if (r == -1 || g == -1 || b == -1) {
-			free(pixels);
-			fclose(fp);
-			fputs("load_ppm: EOF while reading pixel data", fp);
+			delete [] pixels;
+			fp.close();
+			fp << "load_ppm: EOF while reading pixel data";
 			return 0;
 		}
 		pixels[i] = PACK_COLOR24(r, g, b);
 	}
 
-	fclose(fp);
+	fp.close();
 
 	if (xsz) *xsz = w;
 	if (ysz) *ysz = h;
