@@ -45,3 +45,32 @@
 	(partially complete already).
 	2) Rewrite window.cpp and shaders to use the Shader class.
 	3) After writing Shader, it only takes five lines to use any shader.
+	
+5/26/2015:
+	1) Today I wrote a util program to implement all functions in. I
+	have given up with object orientation after many errors. I wrote a
+	lot of code today.
+	2) Tomorrow I plan to finish all of the shader programs.
+	3) This code is starting to look more and more like C code.
+
+5/27/2015:
+	1) I changed all of the code to C after annoying errors. This fixed
+	all of the errors. Unfortunately, Visual Studio was not happy with
+	the change of language, and is now throwing a runtime exception.
+	2) Tomorrow I need to fix that exception. It is probably a
+	segmentation fault in disguise. It shouldn't be too hard to fix.
+	3) Visual studio is quite a good IDE actually. To change the
+	language all I had to do was change the file extension. Then
+	everything automatically changed for me. All the errors were gone!
+
+5/28/2015:
+	1) I found out what that exception was. Turns out Visual Studio is
+	not so good at changing language after all. It is a potential
+	runtime error dectected by Visual Studio. It wants me to catch the
+	error. Unfortunately, C predates the invention of try {} catch {}
+	clauses. Therefore I changed back to C++.
+	2) Tomorrow I will need to finish the switch back into C++. I expect
+	that will take about 5-6 hours to do.
+	3) Nobody has invented a way for C to do exception handling yet.
+	Visual Studio also should realize that there is no way to handle an
+	exception in C.
