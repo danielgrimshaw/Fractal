@@ -39,8 +39,8 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="freeglutd.lib">
+    <_EmbedManagedResourceFile Include="freeglutd.dll">
       <Filter>Resource Files</Filter>
-    </Library>
+    </_EmbedManagedResourceFile>
   </ItemGroup>
 </Project>

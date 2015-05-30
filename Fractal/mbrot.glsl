@@ -1,3 +1,5 @@
+#version 330
+
 uniform sampler1D tex;
 uniform vec2 center;
 uniform float scale;

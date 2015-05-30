@@ -16,7 +16,7 @@
 #define GLEW_STATIC
 #endif
 #include <GL/glew.h>
-#include <GL/gl.h>
+#include <GL/GL.h>
 
 #include "util.h"
 
@@ -38,7 +38,7 @@ void glUniform2f(GLint location, GLfloat v0, GLfloat v1);
 
 
 int check_ppm(std::ifstream & fp);
-void * load_ppm(std::fstream & fp, unsigned long *xsz, unsigned long *ysz);
+void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz);
 
 typedef unsigned int uint32_t;
 
@@ -74,61 +74,76 @@ unsigned int setup_shader(const char *fname) {
 	t.close();
 	src_buf[len] = 0;
 
-	sdr = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
-	glShaderSourceARB(sdr, 1, (const char**)&src_buf, 0);
+	sdr = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(sdr, 1, &src_buf, 0);
 	delete [] src_buf;
 
-	glCompileShaderARB(sdr);
-	glGetObjectParameterivARB(sdr, GL_OBJECT_COMPILE_STATUS_ARB, &success);
+	glCompileShader(sdr);
+	glGetShaderiv(sdr, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		int info_len;
 		char *info_log;
 
-		glGetObjectParameterivARB(sdr, GL_OBJECT_INFO_LOG_LENGTH_ARB, &info_len);
+		glGetShaderiv(sdr, GL_INFO_LOG_LENGTH, &info_len);
 		if (info_len > 0) {
 			if (!(info_log = new char[info_len + 1])) {
-				cerr << "Unable to allocate info_log (util.cpp: line 90)" << endl;
+				cout << "Unable to allocate info_log (util.cpp: line 90)" << endl;
 				return 0;
 			}
-			glGetInfoLogARB(sdr, info_len, 0, info_log);
-			cerr << "shader compilation failed: " << info_log << endl;
+			glGetShaderInfoLog(sdr, info_len, 0, info_log);
+			cout << "shader compilation failed: " << info_log << endl;
 			delete [] info_log;
 		}
 		else {
-			cerr << "shader compilation failed" << endl;
+			cout << "shader compilation failed" << endl;
 		}
 		return 0;
 	}
 
-	prog = glCreateProgramObjectARB();
-	glAttachObjectARB(prog, sdr);
-	glLinkProgramARB(prog);
-	glGetObjectParameterivARB(prog, GL_OBJECT_LINK_STATUS_ARB, &linked);
+	prog = glCreateProgram();
+	glAttachShader(prog, sdr);
+	glLinkProgram(prog);
+	glGetProgramiv(prog, GL_LINK_STATUS, &linked);
 	if (!linked) {
-		cerr << "shader linking failed" << endl;
+		int info_len;
+		char *info_log;
+
+		glGetShaderiv(sdr, GL_INFO_LOG_LENGTH, &info_len);
+		if (info_len > 0) {
+			if (!(info_log = new char[info_len + 1])) {
+				cout << "Unable to allocate info_log (util.cpp: line 90)" << endl;
+				return 0;
+			}
+			glGetShaderInfoLog(sdr, info_len, 0, info_log);
+			cout << "shader compilation failed: " << info_log << endl;
+			delete[] info_log;
+		}
+		else {
+			cout << "shader compilation failed" << endl;
+		}
 		return 0;
 	}
 
-	glUseProgramObjectARB(prog);
+	glUseProgram(prog);
 	return prog;
 }
 
 void set_uniform1f(unsigned int prog, const char *name, float val) {
-	int loc = glGetUniformLocationARB(prog, name);
+	int loc = glGetUniformLocation(prog, name);
 	if (loc != -1) {
 		glUniform1f(loc, val);
 	}
 }
 
 void set_uniform2f(unsigned int prog, const char *name, float v1, float v2) {
-	int loc = glGetUniformLocationARB(prog, name);
+	int loc = glGetUniformLocation(prog, name);
 	if (loc != -1) {
 		glUniform2f(loc, v1, v2);
 	}
 }
 
 void set_uniform1i(unsigned int prog, const char *name, int val) {
-	int loc = glGetUniformLocationARB(prog, name);
+	int loc = glGetUniformLocation(prog, name);
 	if (loc != -1) {
 		glUniform1i(loc, val);
 	}
@@ -160,18 +175,16 @@ void * load_image(const char *fname, unsigned long *xsz, unsigned long *ysz) { /
 	using namespace std;
 	ifstream fp(fname);
 	if (!(fp.is_open())) {
-		cerr << "failed to open: " << fname << endl;
+		cout << "failed to open: " << fname << endl;
 		return 0;
 	}
 
 	if (check_ppm(fp)) {
-		fstream rw(fname);
-		return load_ppm(rw, xsz, ysz);
-		rw.close();
+		return load_ppm(fp, xsz, ysz);
 	}
 
 	fp.close();
-	cerr << "unsupported image format" << endl;
+	cout << "unsupported image format" << endl;
 	return 0;
 }
 
@@ -184,7 +197,7 @@ int check_ppm(std::ifstream & fp) {
 	return 0;
 }
 
-static int read_to_wspace(std::fstream & fp, char * buf, int bsize) {
+static int read_to_wspace(std::ifstream & fp, char * buf, int bsize) {
 	int count = 0;
 	char c;
 
@@ -200,11 +213,11 @@ static int read_to_wspace(std::fstream & fp, char * buf, int bsize) {
 	*buf = 0;
 
 	while (fp.get(c) && isspace(c));
-	fp.write(&c, 1);
+	fp.putback(c);
 	return count;
 }
 
-void * load_ppm(std::fstream & fp, unsigned long *xsz, unsigned long *ysz) {
+void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz) {
 	using namespace std;
 	char buf[64];
 	int bytes, raw;
@@ -221,7 +234,7 @@ void * load_ppm(std::fstream & fp, unsigned long *xsz, unsigned long *ysz) {
 		return 0;
 	}
 	if (!isdigit(*buf)) {
-		fp << "load_ppm: invalid width: " << buf;
+		cout << "load_ppm: invalid width: " << buf;
 		fp.close();
 		return 0;
 	}
@@ -232,7 +245,7 @@ void * load_ppm(std::fstream & fp, unsigned long *xsz, unsigned long *ysz) {
 		return 0;
 	}
 	if (!isdigit(*buf)) {
-		fp << "load_ppm: invalid height: " << buf;
+		cout << "load_ppm: invalid height: " << buf;
 		fp.close();
 		return 0;
 	}
@@ -243,13 +256,13 @@ void * load_ppm(std::fstream & fp, unsigned long *xsz, unsigned long *ysz) {
 		return 0;
 	}
 	if (!isdigit(*buf) || atoi(buf) != 255) {
-		fp << "load_ppm: invalid or unsupported max value: " << buf;
+		cout << "load_ppm: invalid or unsupported max value: " << buf;
 		fp.close();
 		return 0;
 	}
 
 	if (!(pixels = new uint32_t[w * h])) {
-		fp << "malloc failed";
+		cout << "malloc failed";
 		fp.close();
 		return 0;
 	}
@@ -263,7 +276,7 @@ void * load_ppm(std::fstream & fp, unsigned long *xsz, unsigned long *ysz) {
 		if (r == -1 || g == -1 || b == -1) {
 			delete [] pixels;
 			fp.close();
-			fp << "load_ppm: EOF while reading pixel data";
+			cout << "load_ppm: EOF while reading pixel data";
 			return 0;
 		}
 		pixels[i] = PACK_COLOR24(r, g, b);
