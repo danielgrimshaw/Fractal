@@ -5,6 +5,7 @@
 #endif
 #include <GL/glew.h>
 #include <GL/glut.h>
+#include <iostream>
 #include "util.h"
 
 void draw(void);
@@ -23,9 +24,10 @@ int main(int argc, char ** argv) {
 	void * img;
 
 	/* initialize glut */
+	
+	glutInit(&argc, argv);
 	glutInitWindowSize(800, 600);
 
-	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutCreateWindow("Mandelbrot");
 
@@ -34,6 +36,15 @@ int main(int argc, char ** argv) {
 	glutKeyboardFunc(key_handler);
 	glutMouseFunc(bn_handler);
 	glutMotionFunc(mouse_handler);
+	
+	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
+    glewExperimental = GL_TRUE;
+    // Initialize GLEW to setup the OpenGL Function pointers
+    if (glewInit() != GLEW_OK)
+    {
+        std::cout << "Failed to initialize GLEW" << std::endl;
+        return -1;
+    } 
 
 	/* load the 1D palette texture */
 	glBindTexture(GL_TEXTURE_1D, 1);
@@ -55,6 +66,7 @@ int main(int argc, char ** argv) {
 	}
 	set_uniform1i(prog, "iter", iter);
 
+	glViewport(0,0,800,600);
 	glutMainLoop();
 	return 0;
 }

@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <new>
 
 #ifndef GLEW_STATIC
 #define GLEW_STATIC
@@ -49,12 +50,20 @@ unsigned int setup_shader(const char *fname) {
 	ifstream t;
 
 	t.open(fname);
+	string str((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
+	/*
 	t.seekg(0, ios::end);
 	len = t.tellg();
 	t.seekg(0, ios::beg);
 	src_buf = new char[len+1];
+	if (src_buf == 0) {
+		cout << "Unable to allocate " << len << "bytes for " << fname << endl;
+		return 0;
+	}
 	t.read(src_buf, len);
-	t.close();
+	t.close();*/
+	src_buf = new char[str.length()+1];
+	src_buf = (char *)str.c_str();
 	src_buf[len] = 0;
 
 	sdr = glCreateShader(GL_FRAGMENT_SHADER);
