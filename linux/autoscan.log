@@ -1,0 +1,14 @@
+autoscan: warning: missing AC_CHECK_FUNCS([gettimeofday]) wanted by: 
+	src/util.cpp:49
+autoscan: warning: missing AC_CHECK_HEADERS([stdlib.h]) wanted by: 
+	src/util.cpp:9
+	src/Fractals.cpp:2
+autoscan: warning: missing AC_CHECK_HEADERS([sys/time.h]) wanted by: 
+	src/util.cpp:3
+autoscan: warning: missing AC_PROG_CC wanted by: 
+	config.h.in
+	src/util.h
+autoscan: warning: missing AC_TYPE_UINT32_T wanted by: 
+	src/util.cpp:43
+	src/util.cpp:225
+	src/util.cpp:264

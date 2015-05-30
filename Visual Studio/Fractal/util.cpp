@@ -16,26 +16,9 @@
 #define GLEW_STATIC
 #endif
 #include <GL/glew.h>
-#include <GL/GL.h>
+#include <GL/gl.h>
 
 #include "util.h"
-
-#ifdef __unix__
-GLhandleARB glCreateShaderObjectARB(GLenum);
-void glShaderSourceARB(GLhandleARB, int, const char **, int *);
-void glCompileShaderARB(GLhandleARB);
-GLhandleARB glCreateProgramObjectARB(void);
-void glAttachObjectARB(GLhandleARB, GLhandleARB);
-void glLinkProgramARB(GLhandleARB);
-void glUseProgramObjectARB(GLhandleARB);
-void glGetInfoLogARB(GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
-void glGetObjectParameterivARB(GLhandleARB, GLenum, int *);
-GLint glGetUniformLocationARB(GLhandleARB, const char *);
-void glUniform1f(GLint location, GLfloat v0);
-void glUniform1i(GLint location, GLint v0);
-void glUniform2f(GLint location, GLfloat v0, GLfloat v1);
-#endif
-
 
 int check_ppm(std::ifstream & fp);
 void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz);
@@ -75,7 +58,7 @@ unsigned int setup_shader(const char *fname) {
 	src_buf[len] = 0;
 
 	sdr = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(sdr, 1, &src_buf, 0);
+	glShaderSource(sdr, 1, (const char **)&src_buf, 0);
 	delete [] src_buf;
 
 	glCompileShader(sdr);
