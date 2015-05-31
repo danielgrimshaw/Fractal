@@ -44,7 +44,7 @@ unsigned long get_msec(void) {
 
 unsigned int setup_shader(const char *fname) {
 	using namespace std;
-	unsigned int prog, sdr, len;
+	unsigned int prog, sdr;
 	char * src_buf;
 	int success, linked;
 	ifstream t;
@@ -64,7 +64,7 @@ unsigned int setup_shader(const char *fname) {
 	t.close();*/
 	src_buf = new char[str.length()+1];
 	src_buf = (char *)str.c_str();
-	src_buf[len] = 0;
+	src_buf[str.length()+1] = 0;
 
 	sdr = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(sdr, 1, (const char **)&src_buf, 0);
