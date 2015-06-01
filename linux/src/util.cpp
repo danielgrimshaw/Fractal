@@ -65,6 +65,7 @@ unsigned int setup_shader(const char *fname) {
 	src_buf = new char[str.length()+1];
 	src_buf = (char *)str.c_str();
 	src_buf[str.length()+1] = 0;
+	t.close();
 
 	sdr = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(sdr, 1, (const char **)&src_buf, 0);
