@@ -47,10 +47,16 @@ unsigned int setup_shader(const char *fname) {
 	unsigned int prog, sdr;
 	char * src_buf;
 	int success, linked;
+	string str;
 	ifstream t;
+	uint32_t str_location = (uint32_t)&str;
 
 	t.open(fname);
-	string str((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
+	t.seekg(0, std::ios::end);
+	str.reserve(t.tellg());
+	t.seekg(0, std::ios::beg);
+
+	str.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 	/*
 	t.seekg(0, ios::end);
 	len = t.tellg();
@@ -62,14 +68,14 @@ unsigned int setup_shader(const char *fname) {
 	}
 	t.read(src_buf, len);
 	t.close();*/
-	src_buf = new char[str.length()+1];
+	src_buf = new char[str.length() + 1];
 	src_buf = (char *)str.c_str();
-	src_buf[str.length()+1] = 0;
+	src_buf[str.length()] = 0;
 	t.close();
 
 	sdr = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(sdr, 1, (const char **)&src_buf, 0);
-	delete [] src_buf;
+	//delete[] src_buf;
 
 	glCompileShader(sdr);
 	glGetShaderiv(sdr, GL_COMPILE_STATUS, &success);
@@ -85,7 +91,7 @@ unsigned int setup_shader(const char *fname) {
 			}
 			glGetShaderInfoLog(sdr, info_len, 0, info_log);
 			cout << "shader compilation failed: " << info_log << endl;
-			delete [] info_log;
+			delete[] info_log;
 		}
 		else {
 			cout << "shader compilation failed" << endl;
