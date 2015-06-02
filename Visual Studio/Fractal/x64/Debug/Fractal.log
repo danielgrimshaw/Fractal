@@ -1,9 +1,24 @@
-﻿Build started 6/1/2015 12:31:00 PM.
+﻿Build started 6/1/2015 8:08:31 PM.
      1>Project "C:\Users\Grimshaw\Documents\Daniel\Fractal\Visual Studio\Fractal\Fractal.vcxproj" on node 2 (Build target(s)).
      1>Link:
-         Fractal.vcxproj -> C:\Users\Grimshaw\Documents\Daniel\Fractal\Visual Studio\x64\Debug\Fractal.exe
-     1>Done Building Project "C:\Users\Grimshaw\Documents\Daniel\Fractal\Visual Studio\Fractal\Fractal.vcxproj" (Build target(s)).
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Grimshaw\Documents\Daniel\Fractal\Visual Studio\x64\Debug\Fractal.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\Users\Grimshaw\Documents\Daniel\Fractal\Dependencies\OpenGL\lib opengl32.lib glew32s.lib freeglutd.lib "CEGUIBase-0_d.lib" "CEGUIOpenGLRenderer-0_d.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /ASSEMBLYRESOURCE:freeglutd.dll /ASSEMBLYRESOURCE:"CEGUIBase-0_d.dll" /ASSEMBLYRESOURCE:"CEGUIOpenGLRenderer-0_d.dll" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Grimshaw\Documents\Daniel\Fractal\Visual Studio\x64\Debug\Fractal.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Grimshaw\Documents\Daniel\Fractal\Visual Studio\x64\Debug\Fractal.lib" /MACHINE:X64 x64\Debug\Fractals.obj
+         x64\Debug\GUI.obj
+         x64\Debug\util.obj
+     1>LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: __cdecl CEGUI::String::~String(void)" (__imp_??1String@CEGUI@@QEAA@XZ) referenced in function main
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: __cdecl CEGUI::String::String(char const *)" (__imp_??0String@CEGUI@@QEAA@PEBD@Z) referenced in function main
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: static class CEGUI::System & __cdecl CEGUI::System::create(class CEGUI::Renderer &,class CEGUI::ResourceProvider *,class CEGUI::XMLParser *,class CEGUI::ImageCodec *,class CEGUI::ScriptModule *,class CEGUI::String const &,class CEGUI::String const &,int)" (__imp_?create@System@CEGUI@@SAAEAV12@AEAVRenderer@2@PEAVResourceProvider@2@PEAVXMLParser@2@PEAVImageCodec@2@PEAVScriptModule@2@AEBVString@2@5H@Z) referenced in function main
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: static class CEGUI::System & __cdecl CEGUI::System::getSingleton(void)" (__imp_?getSingleton@System@CEGUI@@SAAEAV12@XZ) referenced in function main
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: class CEGUI::GUIContext & __cdecl CEGUI::System::getDefaultGUIContext(void)const " (__imp_?getDefaultGUIContext@System@CEGUI@@QEBAAEAVGUIContext@2@XZ) referenced in function main
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: void __cdecl CEGUI::MouseCursor::setDefaultImage(class CEGUI::String const &)" (__imp_?setDefaultImage@MouseCursor@CEGUI@@QEAAXAEBVString@2@@Z) referenced in function main
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: class CEGUI::MouseCursor & __cdecl CEGUI::GUIContext::getMouseCursor(void)" (__imp_?getMouseCursor@GUIContext@CEGUI@@QEAAAEAVMouseCursor@2@XZ) referenced in function main
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: void __cdecl CEGUI::GUIContext::setDefaultFont(class CEGUI::String const &)" (__imp_?setDefaultFont@GUIContext@CEGUI@@QEAAXAEBVString@2@@Z) referenced in function main
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: static class CEGUI::SchemeManager & __cdecl CEGUI::Singleton<class CEGUI::SchemeManager>::getSingleton(void)" (__imp_?getSingleton@?$Singleton@VSchemeManager@CEGUI@@@CEGUI@@SAAEAVSchemeManager@2@XZ) referenced in function main
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: class CEGUI::Scheme & __cdecl CEGUI::NamedXMLResourceManager<class CEGUI::Scheme,class CEGUI::Scheme_xmlHandler>::createFromFile(class CEGUI::String const &,class CEGUI::String const &,enum CEGUI::XMLResourceExistsAction)" (__imp_?createFromFile@?$NamedXMLResourceManager@VScheme@CEGUI@@VScheme_xmlHandler@2@@CEGUI@@QEAAAEAVScheme@2@AEBVString@2@0W4XMLResourceExistsAction@2@@Z) referenced in function main
+     1>GUI.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: static class CEGUI::OpenGL3Renderer & __cdecl CEGUI::OpenGL3Renderer::bootstrapSystem(int)" (__imp_?bootstrapSystem@OpenGL3Renderer@CEGUI@@SAAEAV12@H@Z) referenced in function main
+     1>C:\Users\Grimshaw\Documents\Daniel\Fractal\Visual Studio\x64\Debug\Fractal.exe : fatal error LNK1120: 11 unresolved externals
+     1>Done Building Project "C:\Users\Grimshaw\Documents\Daniel\Fractal\Visual Studio\Fractal\Fractal.vcxproj" (Build target(s)) -- FAILED.
 
-Build succeeded.
+Build FAILED.
 
-Time Elapsed 00:00:00.06
+Time Elapsed 00:00:00.42
