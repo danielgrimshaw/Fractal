@@ -42,50 +42,82 @@ unsigned long get_msec(void) {
 #endif	/* __unix__ */
 }
 
-unsigned int setup_shader(const char *fname) {
+unsigned int setup_shader(const char * vname, const char * fname) { // vector shader, fragment shader
 	using namespace std;
-	unsigned int prog, sdr;
+	unsigned int prog, vsdr, fsdr;
 	char * src_buf;
 	int success, linked;
+	string str;
 	ifstream t;
 
-	t.open(fname);
-	string str((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
-	/*
-	t.seekg(0, ios::end);
-	len = t.tellg();
-	t.seekg(0, ios::beg);
-	src_buf = new char[len+1];
-	if (src_buf == 0) {
-		cout << "Unable to allocate " << len << "bytes for " << fname << endl;
-		return 0;
-	}
-	t.read(src_buf, len);
-	t.close();*/
-	src_buf = new char[str.length()+1];
+	t.open(vname);
+	t.seekg(0, std::ios::end);
+	str.reserve(t.tellg());
+	t.seekg(0, std::ios::beg);
+
+	str.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+	
+	src_buf = new char[str.length() + 1];
 	src_buf = (char *)str.c_str();
-	src_buf[str.length()+1] = 0;
+	src_buf[str.length()] = 0;
 	t.close();
 
-	sdr = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(sdr, 1, (const char **)&src_buf, 0);
-	delete [] src_buf;
+	vsdr = glCreateShader(GL_VERTEX_SHADER);
+	fsdr = glCreateShader(GL_FRAGMENT_SHADER);
+	
+	glShaderSource(vsdr, 1, (const char **)&src_buf, 0);
+	
+	t.open(fname);
+	t.seekg(0, std::ios::end);
+	str.reserve(t.tellg());
+	t.seekg(0, std::ios::beg);
 
-	glCompileShader(sdr);
-	glGetShaderiv(sdr, GL_COMPILE_STATUS, &success);
+	str.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+
+	src_buf = new char[str.length() + 1];
+	src_buf = (char *)str.c_str();
+	src_buf[str.length()] = 0;
+	t.close();
+
+	glShaderSource(fsdr, 1, (const char **)&src_buf, 0);
+
+	glCompileShader(vsdr);
+	glGetShaderiv(vsdr, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		int info_len;
 		char *info_log;
 
-		glGetShaderiv(sdr, GL_INFO_LOG_LENGTH, &info_len);
+		glGetShaderiv(vsdr, GL_INFO_LOG_LENGTH, &info_len);
 		if (info_len > 0) {
 			if (!(info_log = new char[info_len + 1])) {
 				cout << "Unable to allocate info_log (util.cpp: line 90)" << endl;
 				return 0;
 			}
-			glGetShaderInfoLog(sdr, info_len, 0, info_log);
+			glGetShaderInfoLog(vsdr, info_len, 0, info_log);
 			cout << "shader compilation failed: " << info_log << endl;
-			delete [] info_log;
+			delete[] info_log;
+		}
+		else {
+			cout << "shader compilation failed" << endl;
+		}
+		return 0;
+	}
+
+	glCompileShader(fsdr);
+	glGetShaderiv(fsdr, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		int info_len;
+		char *info_log;
+
+		glGetShaderiv(fsdr, GL_INFO_LOG_LENGTH, &info_len);
+		if (info_len > 0) {
+			if (!(info_log = new char[info_len + 1])) {
+				cout << "Unable to allocate info_log (util.cpp: line 90)" << endl;
+				return 0;
+			}
+			glGetShaderInfoLog(fsdr, info_len, 0, info_log);
+			cout << "shader compilation failed: " << info_log << endl;
+			delete[] info_log;
 		}
 		else {
 			cout << "shader compilation failed" << endl;
@@ -94,25 +126,26 @@ unsigned int setup_shader(const char *fname) {
 	}
 
 	prog = glCreateProgram();
-	glAttachShader(prog, sdr);
+	glAttachShader(prog, vsdr);
+	glAttachShader(prog, fsdr);
 	glLinkProgram(prog);
 	glGetProgramiv(prog, GL_LINK_STATUS, &linked);
 	if (!linked) {
 		int info_len;
 		char *info_log;
 
-		glGetShaderiv(sdr, GL_INFO_LOG_LENGTH, &info_len);
+		glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &info_len);
 		if (info_len > 0) {
 			if (!(info_log = new char[info_len + 1])) {
-				cout << "Unable to allocate info_log (util.cpp: line 90)" << endl;
+				cout << "Unable to allocate info_log (util.cpp: line 140)" << endl;
 				return 0;
 			}
-			glGetShaderInfoLog(sdr, info_len, 0, info_log);
-			cout << "shader compilation failed: " << info_log << endl;
+			glGetProgramInfoLog(prog, info_len, 0, info_log);
+			cout << "Program linking failed: " << info_log << endl;
 			delete[] info_log;
 		}
 		else {
-			cout << "shader compilation failed" << endl;
+			cout << "Program linking failed" << endl;
 		}
 		return 0;
 	}

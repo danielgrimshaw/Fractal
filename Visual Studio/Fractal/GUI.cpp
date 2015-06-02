@@ -62,7 +62,6 @@ int main(int argc, char ** argv) {
 	glViewport(0, 0, 800, 600);
 
 	CEGUI::OpenGL3Renderer & renderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
-	CEGUI::System::create(renderer);
 	CEGUI::SchemeManager::getSingleton().createFromFile("WindowsLook.scheme");
 	CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-10");
 	CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("WindowsLook/MouseArrow");

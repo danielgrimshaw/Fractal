@@ -1,11 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#ifndef GLEW_STATIC
+/*#ifndef GLEW_STATIC
 #define GLEW_STATIC
 #endif
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <iostream>
+#include <cstdlib>
 #include "util.h"
 
 void draw(void);
@@ -23,7 +22,7 @@ const float zoom_factor = 0.025f;
 int main(int argc, char ** argv) {
 	void * img;
 
-	/* initialize glut */
+	// initialize glut
 	
 	glutInit(&argc, argv);
 	glutInitWindowSize(800, 600);
@@ -40,13 +39,12 @@ int main(int argc, char ** argv) {
 	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
     glewExperimental = GL_TRUE;
     // Initialize GLEW to setup the OpenGL Function pointers
-    if (glewInit() != GLEW_OK)
-    {
+    if (glewInit() != GLEW_OK) {
         std::cout << "Failed to initialize GLEW" << std::endl;
         return -1;
     } 
 
-	/* load the 1D palette texture */
+	// load the 1D palette texture
 	glBindTexture(GL_TEXTURE_1D, 1);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -60,8 +58,8 @@ int main(int argc, char ** argv) {
 
 	glEnable(GL_TEXTURE_1D);
 
-	/* load and set the mandelbrot shader */
-	if (!(prog = setup_shader("mbrot.glsl"))) {
+	// load and set the mandelbrot shader
+	if (!(prog = setup_shader("vertex.glsl", "mbrot.glsl"))) {
 		return EXIT_FAILURE;
 	}
 	set_uniform1i(prog, "iter", iter);
@@ -95,7 +93,7 @@ void idle_handler(void) {
 
 void key_handler(unsigned char key, int x, int y) {
 	switch (key) {
-	case 27:
+	case 27: // ESC
 	case 'q':
 	case 'Q':
 		exit(0);
@@ -152,4 +150,4 @@ void mouse_handler(int x, int y) {
 
 	px = fx;
 	py = fy;
-}
+}*/
