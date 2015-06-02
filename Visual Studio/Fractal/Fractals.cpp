@@ -59,7 +59,7 @@ int main(int argc, char ** argv) {
 	glEnable(GL_TEXTURE_1D);
 
 	// load and set the mandelbrot shader
-	if (!(prog = setup_shader("vertex.glsl", "mbrot.glsl"))) {
+	if (!(prog = setup_shader("blankVertex.glsl", "mbrot.glsl"))) {
 		return EXIT_FAILURE;
 	}
 	set_uniform1i(prog, "iter", iter);

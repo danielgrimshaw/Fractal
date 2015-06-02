@@ -102,7 +102,7 @@ unsigned int setup_shader(const char * vname, const char * fname) { // vector sh
 		}
 		return 0;
 	}
-
+	
 	glCompileShader(fsdr);
 	glGetShaderiv(fsdr, GL_COMPILE_STATUS, &success);
 	if (!success) {

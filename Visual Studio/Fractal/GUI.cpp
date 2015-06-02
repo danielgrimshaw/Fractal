@@ -14,126 +14,106 @@
 #include <GL/freeglut.h>
 #include "util.h"
 
-#include <CEGUI/CEGUI.h>
-#include <CEGUI/RendererModules/OpenGL/GL3Renderer.h>
-#include <CEGUI/System.h>
+#include <Windows.h>
 
-void draw(void);
-void idle_handler(void);
-void key_handler(unsigned char key, int x, int y);
-void bn_handler(int bn, int state, int x, int y);
-void mouse_handler(int x, int y);
+LRESULT CALLBACK WindowProcedure
+(HWND hwnd, unsigned int message, WPARAM wParam, LPARAM lParam);
 
-unsigned int prog;
-float cx = 0.7f, cy = 0.0f;
-float scale = 2.2f;
-int iter = 70;
-const float zoom_factor = 0.025f;
-char filename[64] = "mbrot.glsl";
-
-// A barebones GLUT application
-int main(int argc, char ** argv) {
-	// initialize glut
-	glutInit(&argc, argv);
-	glutInitWindowSize(800, 600);
-
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-	glutCreateWindow("Mandelbrot");
-
-	glutDisplayFunc(draw);
-	glutIdleFunc(idle_handler);
-	glutKeyboardFunc(key_handler);
-	glutMouseFunc(bn_handler);
-	glutMotionFunc(mouse_handler);
-
-	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
-	glewExperimental = GL_TRUE;
-	// Initialize GLEW to setup the OpenGL Function pointers
-	if (glewInit() != GLEW_OK) {
-		std::cout << "Failed to initialize GLEW" << std::endl;
-		return -1;
+class WinClass
+{
+public:
+	WinClass(WNDPROC winProc, char const * className, HINSTANCE hInst);
+	void Register()
+	{
+		::RegisterClass(&_class);
 	}
+private:
+	WNDCLASS _class;
+};
 
-	if (!(prog = setup_shader("vector.glsl", filename))) {
-		return EXIT_FAILURE;
-	}
-	set_uniform1i(prog, "iter", iter);
-	
-	glViewport(0, 0, 800, 600);
-
-	CEGUI::OpenGL3Renderer & renderer = CEGUI::OpenGL3Renderer::bootstrapSystem();
-	CEGUI::SchemeManager::getSingleton().createFromFile("WindowsLook.scheme");
-	CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont("DejaVuSans-10");
-	CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("WindowsLook/MouseArrow");
-	
-
-	glutMainLoop();
-	return 0;
+WinClass::WinClass
+(WNDPROC winProc, char const * className, HINSTANCE hInst)
+{
+	_class.style = 0;
+	_class.lpfnWndProc = winProc; // window procedure: mandatory
+	_class.cbClsExtra = 0;
+	_class.cbWndExtra = 0;
+	_class.hInstance = hInst;         // owner of the class: mandatory
+	_class.hIcon = 0;
+	_class.hCursor = ::LoadCursor(0, IDC_ARROW); // optional
+	_class.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1); // optional
+	_class.lpszMenuName = 0;
+	_class.lpszClassName = className; // mandatory
 }
 
+class WinMaker
+{
+public:
+	WinMaker() : _hwnd(0) {}
+	WinMaker(char const * caption,
+		char const * className,
+		HINSTANCE hInstance);
+	void Show(int cmdShow)
+	{
+		::ShowWindow(_hwnd, cmdShow);
+		::UpdateWindow(_hwnd);
+	}
+protected:
+	HWND _hwnd;
+};
 
-void draw(void) {
-	
+WinMaker::WinMaker(char const * caption,
+	char const * className,
+	HINSTANCE hInstance)
+{
+	_hwnd = ::CreateWindow(
+		className,            // name of a registered window class
+		caption,              // window caption
+		WS_OVERLAPPEDWINDOW,  // window style
+		CW_USEDEFAULT,        // x position
+		CW_USEDEFAULT,        // y position
+		CW_USEDEFAULT,        // witdh
+		CW_USEDEFAULT,        // height
+		0,                    // handle to parent window
+		0,                    // handle to menu
+		hInstance,            // application instance
+		0);                   // window creation data
 }
 
-void idle_handler(void) {
-	glutPostRedisplay();
+int WINAPI WinMain (HINSTANCE hInst, HINSTANCE hPrevInst,
+            char * cmdParam, int cmdShow)
+{
+    char className [] = "Winnie";
+
+    WinClass winClass (WindowProcedure, className, hInst);
+    winClass.Register ();
+
+    WinMaker win ("Hello Windows!", className, hInst);
+    win.Show (cmdShow);
+
+    MSG  msg;
+    int status;
+
+    while ((status = ::GetMessage (& msg, 0, 0, 0)) != 0)
+    {
+        if (status == -1)
+            return -1;
+        ::DispatchMessage (& msg);
+    }
+
+    return msg.wParam;
 }
 
-void key_handler(unsigned char key, int x, int y) {
-	using namespace std;
-	switch (key) {
-	case 27: // ESC
-	case 'q':
-	case 'Q':
-		exit(0);
+// Window Procedure called by Windows
+LRESULT CALLBACK WindowProcedure
+(HWND hwnd, unsigned int message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_DESTROY:
+		::PostQuitMessage(0);
+		return 0;
 
-	case '=':
-		iter += 10;
-	case '-':
-		iter -= 10;
-		if (iter < 0) iter = 0;
-		cout << "iterations: %d" << iter << endl;
-		set_uniform1i(prog, "iter", iter);
-		break;
-
-	default:
-		break;
 	}
-}
-
-int which_bn;
-float px, py;
-
-void bn_handler(int bn, int state, int x, int y) {
-	int xres = glutGet(GLUT_WINDOW_WIDTH);
-	int yres = glutGet(GLUT_WINDOW_HEIGHT);
-	px = 2.0f * ((float)x / (float)xres - 0.5f);
-	py = 2.0f * ((float)y / (float)yres - 0.5f);
-	which_bn = bn;
-
-	if (which_bn == 3) {
-		scale *= 1 - zoom_factor * 2.0f;
-	}
-	else if (which_bn == 4) {
-		scale *= 1 + zoom_factor * 2.0f;
-	}
-}
-
-void mouse_handler(int x, int y) {
-	int xres = glutGet(GLUT_WINDOW_WIDTH);
-	int yres = glutGet(GLUT_WINDOW_HEIGHT);
-	float fx = 2.0f * ((float)x / (float)xres - 0.5f);
-	float fy = 2.0f * ((float)y / (float)yres - 0.5f);
-
-	if (which_bn == 1) {
-		cx += (fx - px) * scale / 2.0f;
-		cy -= (fy - py) * scale / 2.0f;
-	}
-	else if (which_bn == 0) {
-		scale *= (fy - py < 0.0) ? 1 - zoom_factor : 1 + zoom_factor;
-	}
-
-	px = fx;
-	py = fy;
+	return ::DefWindowProc(hwnd, message, wParam, lParam);
 }

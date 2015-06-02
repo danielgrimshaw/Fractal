@@ -40,15 +40,12 @@
     <Text Include="vertex.glsl">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="blankVertex.glsl">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <_EmbedManagedResourceFile Include="freeglutd.dll">
-      <Filter>Resource Files</Filter>
-    </_EmbedManagedResourceFile>
-    <_EmbedManagedResourceFile Include="CEGUIBase-0_d.dll">
-      <Filter>Resource Files</Filter>
-    </_EmbedManagedResourceFile>
-    <_EmbedManagedResourceFile Include="CEGUIOpenGLRenderer-0_d.dll">
       <Filter>Resource Files</Filter>
     </_EmbedManagedResourceFile>
   </ItemGroup>
@@ -59,32 +56,5 @@
     <None Include="orbitTrap.glsl">
       <Filter>Resource Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Font Include="fonts\DejaVuSans.ttf">
-      <Filter>Resource Files</Filter>
-    </Font>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="imagesets\WindowsLook.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Xml Include="fonts\DejaVuSans-10.font">
-      <Filter>Resource Files</Filter>
-    </Xml>
-    <Xml Include="imagesets\WindowsLook.imageset">
-      <Filter>Resource Files</Filter>
-    </Xml>
-    <Xml Include="looknfeel\WindowsLook.looknfeel">
-      <Filter>Resource Files</Filter>
-    </Xml>
-    <Xml Include="schemes\WindowsLook.scheme">
-      <Filter>Resource Files</Filter>
-    </Xml>
-    <Xml Include="layouts\GUI.layout">
-      <Filter>Resource Files</Filter>
-    </Xml>
   </ItemGroup>
 </Project>
