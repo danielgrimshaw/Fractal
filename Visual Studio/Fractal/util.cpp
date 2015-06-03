@@ -42,6 +42,15 @@ unsigned long get_msec(void) {
 #endif	/* __unix__ */
 }
 
+void Shader::setDefaultsOpts() {
+	opt.width = 800;
+	opt.height = 400;
+	opt.vertex = NULL;
+	opt.fragment = NULL;
+	opt.vpath = NULL;
+	opt.fpath = NULL;
+}
+
 void loadShaders(const char * vname, const char * fname) {
 	
 }
