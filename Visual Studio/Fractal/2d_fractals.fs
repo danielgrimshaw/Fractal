@@ -1,7 +1,10 @@
-#version 330 core
 #ifdef GL_ES
 precision highp float;
 #endif
+
+/**
+ * 2D Fractal Shader Fragment Shader
+ */
 
 #define dE Mandelbrot             // {"label":"Fractal type", "control":"select", "options":["Mandelbrot", "OrbitTrap", "Ducks"]}
 
@@ -80,7 +83,8 @@ mat2  orbitSpin;
 
 
 // RGB to HSV
-vec3 rgb2hsv(vec3 color) {
+vec3 rgb2hsv(vec3 color)
+{
     float rgb_min = min(color.r, min(color.g, color.b));
     float rgb_max = max(color.r, max(color.g, color.b));
     float rgb_delta = rgb_max - rgb_min;
@@ -115,7 +119,8 @@ vec3 rgb2hsv(vec3 color) {
 }
 
 
-vec3 hsv2rgb(vec3 hsv) {
+vec3 hsv2rgb(vec3 hsv)
+{
     float h, s, v, r, g, b, j, p, q, t;
     int i;
     vec3 color;
@@ -123,10 +128,10 @@ vec3 hsv2rgb(vec3 hsv) {
     h = hsv.x;
     s = hsv.y;
     v = hsv.z;
-    
+	
     if (h == 1.0) {
-        h = 0.0;
-    }
+		h = 0.0;
+	}
     
     if (v == 0.0) {
         // No brightness so return black
@@ -137,41 +142,41 @@ vec3 hsv2rgb(vec3 hsv) {
         color = vec3(v);
         
     } else {
-        // RGB color
+		// RGB color
         h *= 6.0;
-        i = int(floor(h));
-        j = h - float(i);
-        p = v * (1.0 - s);
-        q = v * (1.0 - (s * j));
-        t = v * (1.0 - (s * (1.0 - j)));
-        
-        if (i == 0) {
-            r = v;
-            g = t;
-            b = p;
-        } else if (i == 1) {
-            r = q;
-            g = v;
-            b = p;
-        } else if (i == 2) {
-            r = p;
-            g = v;
-            b = t;
-        } else if (i == 3) {
-            r = p;
-            g = q;
-            b = v;
-        } else if (i == 4) {
-            r = t;
-            g = p;
-            b = v;
-        } else if (i == 5) {
-            r = v;
-            g = p;
-            b = q;
-        }
-        color = vec3(r, g, b);
-    }
+		i = int(floor(h));
+		j = h - float(i);
+		p = v * (1.0 - s);
+		q = v * (1.0 - (s * j));
+		t = v * (1.0 - (s * (1.0 - j)));
+		
+		if (i == 0) {
+			r = v;
+			g = t;
+			b = p;
+		} else if (i == 1) {
+			r = q;
+			g = v;
+			b = p;
+		} else if (i == 2) {
+			r = p;
+			g = v;
+			b = t;
+		} else if (i == 3) {
+			r = p;
+			g = q;
+			b = v;
+		} else if (i == 4) {
+			r = t;
+			g = p;
+			b = v;
+		} else if (i == 5) {
+			r = v;
+			g = p;
+			b = q;
+		}
+		color = vec3(r, g, b);
+	}
     
     return color;
 }
@@ -319,8 +324,8 @@ vec4 orbitMapping(vec4 c, vec2 w)
     vec4 color = vec4(0);
     vec2 sp = 0.5 + (w / orbitTrapScale * orbitRotation - orbitTrapOffset) * orbitSpin;
     
-    vec4 s = texture2D(texture, sp);
-    if (s.a > 0.0) c = mix(c, s, s.a);
+	vec4 s = texture2D(texture, sp);
+	if (s.a > 0.0) c = mix(c, s, s.a);
     
     return c;
 }
@@ -359,7 +364,6 @@ vec4 OrbitTrap(vec2 z) {
 
 
 #ifdef dEDucks
-// Ducks and butterflies fractal image
 
 vec4 Ducks(vec2 z) {
     vec4  color = vec4(color3, 1.0);
