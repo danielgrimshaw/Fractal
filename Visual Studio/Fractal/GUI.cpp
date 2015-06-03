@@ -2,7 +2,7 @@
  * Launcher program for Fractal
  * Runs a GUI for selecting settings.
  */
-
+/*
 #include <iostream>
 #include <cstdlib>
 
@@ -23,7 +23,7 @@
  * HINSTANCE hPrevInstance: NULL for modern windows (used in Win16)
  * LPSTR lpCmdLine: args without command name
  * int nCmdShow: integer to be passed to ShowWindow()
- */
+ //
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow)
 {
@@ -100,3 +100,4 @@ LRESULT CALLBACK guiProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
+*/

@@ -1,1 +1,1 @@
-# dummy
+GUI.o: GUI.cpp

@@ -1,4 +1,3 @@
-#version 330 core
 #ifdef GL_ES
 precision highp float;
 #endif

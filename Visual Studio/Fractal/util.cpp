@@ -94,11 +94,11 @@ unsigned int setup_shader(const char * vname, const char * fname) { // vector sh
 				return 0;
 			}
 			glGetShaderInfoLog(vsdr, info_len, 0, info_log);
-			cout << "shader compilation failed: " << info_log << endl;
+			cout << "Vertex shader compilation failed: " << info_log << endl;
 			delete[] info_log;
 		}
 		else {
-			cout << "shader compilation failed" << endl;
+			cout << "Vertex shader compilation failed" << endl;
 		}
 		return 0;
 	}
@@ -116,11 +116,11 @@ unsigned int setup_shader(const char * vname, const char * fname) { // vector sh
 				return 0;
 			}
 			glGetShaderInfoLog(fsdr, info_len, 0, info_log);
-			cout << "shader compilation failed: " << info_log << endl;
+			cout << "Fragment shader compilation failed: " << info_log << endl;
 			delete[] info_log;
 		}
 		else {
-			cout << "shader compilation failed" << endl;
+			cout << "Fragment shader compilation failed" << endl;
 		}
 		return 0;
 	}

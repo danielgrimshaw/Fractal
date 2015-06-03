@@ -246,8 +246,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 CFLAGS = -g -Wall
-AM_LDFLAGS = -lglut -lCEGUIBase-0.7.6 -lGLEW -lGL -lX11 -lXxf86vm -lXrandr -lpthread -lXi#-lopengl32 -lglu32 -lglut32
-Fractal_SOURCES = GUI.cpp Fractals.cpp util.h util.cpp
+AM_LDFLAGS = -lglut -lGLEW -lGL -lX11 -lXxf86vm -lXrandr -lpthread -lXi#-lopengl32 -lglu32 -lglut32
+Fractal_SOURCES = GUI.cpp GUI.h Fractals.cpp util.h util.cpp
 all: all-am
 
 .SUFFIXES:

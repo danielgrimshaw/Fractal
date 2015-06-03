@@ -1,9 +1,8 @@
-#version 330 core
 #ifdef GL_ES
 precision highp float;
 #endif
 
-uniform int iter
+uniform int iter;
 #define antialiasingVal 0.5
 
 uniform bool antialiasing;

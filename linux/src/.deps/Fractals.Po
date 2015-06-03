@@ -1,38 +1,36 @@
-Fractals.o: Fractals.cpp /usr/include/stdio.h /usr/include/features.h \
+Fractals.o: Fractals.cpp /usr/include/GL/glew.h \
+ /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stddef.h \
+ /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdint.h \
+ /usr/include/stdint.h /usr/include/features.h \
  /usr/include/arm-linux-gnueabihf/bits/predefs.h \
  /usr/include/arm-linux-gnueabihf/sys/cdefs.h \
  /usr/include/arm-linux-gnueabihf/bits/wordsize.h \
  /usr/include/arm-linux-gnueabihf/gnu/stubs.h \
- /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stddef.h \
- /usr/include/arm-linux-gnueabihf/bits/types.h \
- /usr/include/arm-linux-gnueabihf/bits/typesizes.h /usr/include/libio.h \
- /usr/include/_G_config.h /usr/include/wchar.h \
- /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdarg.h \
- /usr/include/arm-linux-gnueabihf/bits/stdio_lim.h \
- /usr/include/arm-linux-gnueabihf/bits/sys_errlist.h \
- /usr/include/arm-linux-gnueabihf/bits/stdio.h /usr/include/stdlib.h \
+ /usr/include/arm-linux-gnueabihf/bits/wchar.h /usr/include/GL/glu.h \
+ /usr/include/GL/gl.h /usr/local/include/GL/glut.h \
+ /usr/local/include/GL/freeglut_std.h /usr/include/stdlib.h \
  /usr/include/arm-linux-gnueabihf/bits/waitflags.h \
  /usr/include/arm-linux-gnueabihf/bits/waitstatus.h /usr/include/endian.h \
  /usr/include/arm-linux-gnueabihf/bits/endian.h \
  /usr/include/arm-linux-gnueabihf/bits/byteswap.h /usr/include/xlocale.h \
- /usr/include/arm-linux-gnueabihf/sys/types.h /usr/include/time.h \
+ /usr/include/arm-linux-gnueabihf/sys/types.h \
+ /usr/include/arm-linux-gnueabihf/bits/types.h \
+ /usr/include/arm-linux-gnueabihf/bits/typesizes.h /usr/include/time.h \
  /usr/include/arm-linux-gnueabihf/sys/select.h \
  /usr/include/arm-linux-gnueabihf/bits/select.h \
  /usr/include/arm-linux-gnueabihf/bits/sigset.h \
  /usr/include/arm-linux-gnueabihf/bits/time.h \
  /usr/include/arm-linux-gnueabihf/sys/sysmacros.h \
  /usr/include/arm-linux-gnueabihf/bits/pthreadtypes.h \
- /usr/include/alloca.h /usr/include/GL/glew.h \
- /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdint.h \
- /usr/include/stdint.h /usr/include/arm-linux-gnueabihf/bits/wchar.h \
- /usr/include/GL/glu.h /usr/include/GL/gl.h /usr/local/include/GL/glut.h \
- /usr/local/include/GL/freeglut_std.h /usr/include/c++/4.6/iostream \
+ /usr/include/alloca.h /usr/include/c++/4.6/iostream \
  /usr/include/c++/4.6/arm-linux-gnueabihf/./bits/c++config.h \
  /usr/include/c++/4.6/arm-linux-gnueabihf/./bits/os_defines.h \
  /usr/include/c++/4.6/arm-linux-gnueabihf/./bits/cpu_defines.h \
  /usr/include/c++/4.6/ostream /usr/include/c++/4.6/ios \
  /usr/include/c++/4.6/iosfwd /usr/include/c++/4.6/bits/stringfwd.h \
  /usr/include/c++/4.6/bits/postypes.h /usr/include/c++/4.6/cwchar \
+ /usr/include/wchar.h /usr/include/stdio.h \
+ /usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdarg.h \
  /usr/include/c++/4.6/exception /usr/include/c++/4.6/bits/char_traits.h \
  /usr/include/c++/4.6/bits/stl_algobase.h \
  /usr/include/c++/4.6/bits/functexcept.h \
@@ -84,9 +82,16 @@ Fractals.o: Fractals.cpp /usr/include/stdio.h /usr/include/features.h \
  /usr/include/c++/4.6/bits/locale_facets.tcc \
  /usr/include/c++/4.6/bits/basic_ios.tcc \
  /usr/include/c++/4.6/bits/ostream.tcc /usr/include/c++/4.6/istream \
- /usr/include/c++/4.6/bits/istream.tcc util.h
+ /usr/include/c++/4.6/bits/istream.tcc /usr/include/c++/4.6/cstdlib \
+ util.h
 
-/usr/include/stdio.h:
+/usr/include/GL/glew.h:
+
+/usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stddef.h:
+
+/usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdint.h:
+
+/usr/include/stdint.h:
 
 /usr/include/features.h:
 
@@ -98,25 +103,15 @@ Fractals.o: Fractals.cpp /usr/include/stdio.h /usr/include/features.h \
 
 /usr/include/arm-linux-gnueabihf/gnu/stubs.h:
 
-/usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stddef.h:
+/usr/include/arm-linux-gnueabihf/bits/wchar.h:
 
-/usr/include/arm-linux-gnueabihf/bits/types.h:
+/usr/include/GL/glu.h:
 
-/usr/include/arm-linux-gnueabihf/bits/typesizes.h:
+/usr/include/GL/gl.h:
 
-/usr/include/libio.h:
+/usr/local/include/GL/glut.h:
 
-/usr/include/_G_config.h:
-
-/usr/include/wchar.h:
-
-/usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdarg.h:
-
-/usr/include/arm-linux-gnueabihf/bits/stdio_lim.h:
-
-/usr/include/arm-linux-gnueabihf/bits/sys_errlist.h:
-
-/usr/include/arm-linux-gnueabihf/bits/stdio.h:
+/usr/local/include/GL/freeglut_std.h:
 
 /usr/include/stdlib.h:
 
@@ -134,6 +129,10 @@ Fractals.o: Fractals.cpp /usr/include/stdio.h /usr/include/features.h \
 
 /usr/include/arm-linux-gnueabihf/sys/types.h:
 
+/usr/include/arm-linux-gnueabihf/bits/types.h:
+
+/usr/include/arm-linux-gnueabihf/bits/typesizes.h:
+
 /usr/include/time.h:
 
 /usr/include/arm-linux-gnueabihf/sys/select.h:
@@ -149,22 +148,6 @@ Fractals.o: Fractals.cpp /usr/include/stdio.h /usr/include/features.h \
 /usr/include/arm-linux-gnueabihf/bits/pthreadtypes.h:
 
 /usr/include/alloca.h:
-
-/usr/include/GL/glew.h:
-
-/usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdint.h:
-
-/usr/include/stdint.h:
-
-/usr/include/arm-linux-gnueabihf/bits/wchar.h:
-
-/usr/include/GL/glu.h:
-
-/usr/include/GL/gl.h:
-
-/usr/local/include/GL/glut.h:
-
-/usr/local/include/GL/freeglut_std.h:
 
 /usr/include/c++/4.6/iostream:
 
@@ -185,6 +168,12 @@ Fractals.o: Fractals.cpp /usr/include/stdio.h /usr/include/features.h \
 /usr/include/c++/4.6/bits/postypes.h:
 
 /usr/include/c++/4.6/cwchar:
+
+/usr/include/wchar.h:
+
+/usr/include/stdio.h:
+
+/usr/lib/gcc/arm-linux-gnueabihf/4.6/include/stdarg.h:
 
 /usr/include/c++/4.6/exception:
 
@@ -315,5 +304,7 @@ Fractals.o: Fractals.cpp /usr/include/stdio.h /usr/include/features.h \
 /usr/include/c++/4.6/istream:
 
 /usr/include/c++/4.6/bits/istream.tcc:
+
+/usr/include/c++/4.6/cstdlib:
 
 util.h:
