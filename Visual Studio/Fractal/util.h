@@ -5,16 +5,24 @@ unsigned long get_msec(void);
 
 void *load_image(const char *fname, unsigned long *xsz, unsigned long *ysz);
 
-void setDefaultsOpts();
-void setParameter();
-void loadShaders(const char * vname, const char * fname);
-void loadShader(char * type, char * path);
-bool createShader(const char * vertex_src, const char * fragment_src);
-const char * parseShader(const char * type, const char * src);
-unsigned int createShader(const char * type, const char * src, const char * opts);
-//void set_uniform1f(unsigned int prog, const char *name, float val);
-//void set_uniform2f(unsigned int prog, const char *name, float v1, float v2);
-//void set_uniform1i(unsigned int prog, const char *name, int val);
+typedef struct options {
+	unsigned int window, width, height;
+	char vertex[], fragment[], vpath[], fpath[];
+	const char * define = "dE";
+} Options;
+
+class Shader {
+public:
+	void setDefaultsOpts();
+	void setParameter();
+	void loadShaders(const char * vname, const char * fname);
+	void loadShader(char * type, char * path);
+	bool createShader(const char * vertex_src, const char * fragment_src);
+	const char * parseShader(const char * type, const char * src);
+	unsigned int createShader(const char * type, const char * src, const char * opts);
+private:
+	Options opt;
+};
 
 void reset();
 void resize(unsigned int width, unsigned int height);
