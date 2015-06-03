@@ -1,4 +1,4 @@
-/*#ifndef GLEW_STATIC
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
 #endif
 #include <GL/glew.h>
@@ -59,7 +59,7 @@ int main(int argc, char ** argv) {
 	glEnable(GL_TEXTURE_1D);
 
 	// load and set the mandelbrot shader
-	if (!(prog = setup_shader("blankVertex.glsl", "mbrot.glsl"))) {
+	if (!(prog = setup_shader("vertex.glsl", "mbrot.glsl"))) {
 		return EXIT_FAILURE;
 	}
 	set_uniform1i(prog, "iter", iter);
@@ -99,15 +99,10 @@ void key_handler(unsigned char key, int x, int y) {
 		exit(0);
 
 	case '=':
-		if (1) {
-			iter += 10;
-		}
-		else {
+		iter += 10;
 	case '-':
 		iter -= 10;
 		if (iter < 0) iter = 0;
-		}
-		printf("iterations: %d\n", iter);
 		set_uniform1i(prog, "iter", iter);
 		break;
 
@@ -150,4 +145,4 @@ void mouse_handler(int x, int y) {
 
 	px = fx;
 	py = fy;
-}*/
+}

@@ -29,6 +29,9 @@
     <ClInclude Include="util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="mbrot.glsl">
@@ -54,6 +57,10 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="orbitTrap.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="html1.htm" />
+    <None Include="listbox1.bin">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -13,107 +13,90 @@
 #include <GL/gl.h>
 #include <GL/freeglut.h>
 #include "util.h"
+#include "GUI.h"
 
-#include <Windows.h>
+#include <windows.h>
 
-LRESULT CALLBACK WindowProcedure
-(HWND hwnd, unsigned int message, WPARAM wParam, LPARAM lParam);
-
-class WinClass
+/**
+ * main
+ * HINSTANCE hInstance: current executable program
+ * HINSTANCE hPrevInstance: NULL for modern windows (used in Win16)
+ * LPSTR lpCmdLine: args without command name
+ * int nCmdShow: integer to be passed to ShowWindow()
+ */
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+	LPSTR lpCmdLine, int nCmdShow)
 {
-public:
-	WinClass(WNDPROC winProc, char const * className, HINSTANCE hInst);
-	void Register()
-	{
-		::RegisterClass(&_class);
-	}
-private:
-	WNDCLASS _class;
-};
+	// Window class
+	WNDCLASSEX wc;
+	HWND hwnd;
+	MSG msg;
 
-WinClass::WinClass
-(WNDPROC winProc, char const * className, HINSTANCE hInst)
-{
-	_class.style = 0;
-	_class.lpfnWndProc = winProc; // window procedure: mandatory
-	_class.cbClsExtra = 0;
-	_class.cbWndExtra = 0;
-	_class.hInstance = hInst;         // owner of the class: mandatory
-	_class.hIcon = 0;
-	_class.hCursor = ::LoadCursor(0, IDC_ARROW); // optional
-	_class.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1); // optional
-	_class.lpszMenuName = 0;
-	_class.lpszClassName = className; // mandatory
-}
+	wc.cbSize = sizeof(WNDCLASSEX);
+	wc.style = 0;
+	wc.lpfnWndProc = guiProc;
+	wc.cbClsExtra = 0;
+	wc.cbWndExtra = 0;
+	wc.hInstance = hInstance;
+	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.lpszMenuName = NULL;
+	wc.lpszClassName = g_szClassName;
+	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
-class WinMaker
-{
-public:
-	WinMaker() : _hwnd(0) {}
-	WinMaker(char const * caption,
-		char const * className,
-		HINSTANCE hInstance);
-	void Show(int cmdShow)
-	{
-		::ShowWindow(_hwnd, cmdShow);
-		::UpdateWindow(_hwnd);
-	}
-protected:
-	HWND _hwnd;
-};
-
-WinMaker::WinMaker(char const * caption,
-	char const * className,
-	HINSTANCE hInstance)
-{
-	_hwnd = ::CreateWindow(
-		className,            // name of a registered window class
-		caption,              // window caption
-		WS_OVERLAPPEDWINDOW,  // window style
-		CW_USEDEFAULT,        // x position
-		CW_USEDEFAULT,        // y position
-		CW_USEDEFAULT,        // witdh
-		CW_USEDEFAULT,        // height
-		0,                    // handle to parent window
-		0,                    // handle to menu
-		hInstance,            // application instance
-		0);                   // window creation data
-}
-
-int WINAPI WinMain (HINSTANCE hInst, HINSTANCE hPrevInst,
-            char * cmdParam, int cmdShow)
-{
-    char className [] = "Winnie";
-
-    WinClass winClass (WindowProcedure, className, hInst);
-    winClass.Register ();
-
-    WinMaker win ("Hello Windows!", className, hInst);
-    win.Show (cmdShow);
-
-    MSG  msg;
-    int status;
-
-    while ((status = ::GetMessage (& msg, 0, 0, 0)) != 0)
-    {
-        if (status == -1)
-            return -1;
-        ::DispatchMessage (& msg);
-    }
-
-    return msg.wParam;
-}
-
-// Window Procedure called by Windows
-LRESULT CALLBACK WindowProcedure
-(HWND hwnd, unsigned int message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message)
-	{
-	case WM_DESTROY:
-		::PostQuitMessage(0);
+	if (!RegisterClassEx(&wc)) {
+		MessageBox(NULL, "Window Registration Failed!", "Error!",
+			MB_ICONEXCLAMATION | MB_OK);
 		return 0;
-
 	}
-	return ::DefWindowProc(hwnd, message, wParam, lParam);
+	
+	hwnd = CreateWindowEx(
+		WS_EX_CLIENTEDGE,
+		g_szClassName,
+		"Fractal",
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
+		NULL, NULL, hInstance, NULL);
+
+	if (hwnd == NULL) {
+		MessageBox(NULL, "Window Creation Failed!", "Error!",
+			MB_ICONEXCLAMATION | MB_OK);
+		return 0;
+	}
+
+	ShowWindow(hwnd, nCmdShow);
+	UpdateWindow(hwnd);
+
+	while (GetMessage(&msg, NULL, 0, 0) > 0) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	return msg.wParam;
+}
+
+LRESULT CALLBACK guiProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+	{
+	case WM_LBUTTONDOWN:
+		{
+			char szFileName[MAX_PATH];
+			HINSTANCE hInstance = GetModuleHandle(NULL);
+			
+			GetModuleFileName(hInstance, szFileName, MAX_PATH);
+			MessageBox(hwnd, szFileName, "This Program is:",
+				MB_OK | MB_ICONINFORMATION);
+		}
+		break;
+	case WM_CLOSE:
+		DestroyWindow(hwnd);
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hwnd, msg, wParam, lParam);
+	}
+	return 0;
 }
