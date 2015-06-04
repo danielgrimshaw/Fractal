@@ -72,7 +72,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	return msg.wParam;
+	return (int)(msg.wParam);
 }
 
 LRESULT CALLBACK guiProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -100,13 +100,12 @@ LRESULT CALLBACK guiProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			char *cpaText[] = {
 				"Hello World!",
 				"This is a hello world application made in the Win32 API",
-				"This example was made by some random dude, aka -LeetGamer-"
+				"Did it work?"
 			};
-			int iY = 5;
 			for (int i = 0; i < 3; i++) {
-				DrawText(hDC, cpaText[i], -1, r, DT_LEFT);
+				char * str = cpaText[i];
+				DrawText(hDC, str, -1, r, DT_CENTER | DT_WORDBREAK);
 			}
-			FillRect(hDC, r, (HBRUSH)GetStockObject(GRAY_BRUSH));
 			EndPaint(hwnd, &ps);
 		}
 		break;
