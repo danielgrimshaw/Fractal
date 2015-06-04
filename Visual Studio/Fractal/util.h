@@ -2,6 +2,7 @@
 #define _UTIL_H_
 #include <iostream>
 #include <cstdlib>
+#include <fstream>
 
 unsigned long get_msec(void);
 

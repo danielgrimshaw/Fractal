@@ -2,7 +2,7 @@
  * Launcher program for Fractal
  * Runs a GUI for selecting settings.
  */
-/*
+
 #include <iostream>
 #include <cstdlib>
 
@@ -12,7 +12,7 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/freeglut.h>
-#include "util.h"
+//#include "util.h"
 #include "GUI.h"
 
 #include <windows.h>
@@ -23,7 +23,7 @@
  * HINSTANCE hPrevInstance: NULL for modern windows (used in Win16)
  * LPSTR lpCmdLine: args without command name
  * int nCmdShow: integer to be passed to ShowWindow()
- //
+ */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpCmdLine, int nCmdShow)
 {
@@ -81,11 +81,7 @@ LRESULT CALLBACK guiProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_LBUTTONDOWN:
 		{
-			char szFileName[MAX_PATH];
-			HINSTANCE hInstance = GetModuleHandle(NULL);
-			
-			GetModuleFileName(hInstance, szFileName, MAX_PATH);
-			MessageBox(hwnd, szFileName, "This Program is:",
+			MessageBox(hwnd, "Written by Daniel Grimshaw", "Fractal",
 				MB_OK | MB_ICONINFORMATION);
 		}
 		break;
@@ -95,9 +91,27 @@ LRESULT CALLBACK guiProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
+	case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			HDC hDC = BeginPaint(hwnd, &ps);
+			LPRECT r = NULL;
+			GetClientRect(hwnd, r);
+			char *cpaText[] = {
+				"Hello World!",
+				"This is a hello world application made in the Win32 API",
+				"This example was made by some random dude, aka -LeetGamer-"
+			};
+			int iY = 5;
+			for (int i = 0; i < 3; i++) {
+				DrawText(hDC, cpaText[i], -1, r, DT_LEFT);
+			}
+			FillRect(hDC, r, (HBRUSH)GetStockObject(GRAY_BRUSH));
+			EndPaint(hwnd, &ps);
+		}
+		break;
 	default:
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
 	return 0;
 }
-*/

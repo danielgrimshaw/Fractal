@@ -6,7 +6,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "util.h"
-
+/*
 void draw(void);
 void idle_handler(void);
 void key_handler(unsigned char key, int x, int y);
@@ -146,3 +146,4 @@ void mouse_handler(int x, int y) {
 	px = fx;
 	py = fy;
 }
+*/
