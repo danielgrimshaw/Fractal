@@ -3,23 +3,23 @@ precision highp float;
 #endif
 
 /**
- * 3D fractal shader (EXPERIMENTAL)
+ * 3D fractal shader (HIGHLY EXPERIMENTAL)
  */
 
 #define HALFPI 1.570796
 #define MIN_EPSILON 6e-7
 #define MIN_NORM 1.5e-7
-#define dE MengerSponge             // {"label":"Fractal type", "control":"select", "options":["MengerSponge", "SphereSponge", "Mandelbulb", "Mandelbox", "OctahedralIFS", "DodecahedronIFS"]}
+uniform int type; // Type of fractal, currently [MengerSponge, SphereSponge, Mandelbulb, Mandelbox, OctahedralIFS, DodecahedronIFS]
 
-#define maxIterations 8             // {"label":"Iterations", "min":1, "max":30, "step":1, "group_label":"Fractal parameters"}
-#define stepLimit 60                // {"label":"Max steps", "min":10, "max":300, "step":1}
+uniform int maxIterations;// 8             // {"label":"Iterations", "min":1, "max":30, "step":1, "group_label":"Fractal parameters"}
+uniform int  stepLimit;// 60                // {"label":"Max steps", "min":10, "max":300, "step":1}
 
-#define aoIterations 4              // {"label":"AO iterations", "min":0, "max":10, "step":1}
+uniform int aoIterations;// 4              // {"label":"AO iterations", "min":0, "max":10, "step":1}
 
 #define minRange 6e-5
 #define bailout 4.0
-#define antialiasing 0.5            // {"label":"Anti-aliasing", "control":"bool", "default":false, "group_label":"Render quality"}
-
+uniform float antialiasing;// 0.5            // {"label":"Anti-aliasing", "control":"bool", "default":false, "group_label":"Render quality"}
+uniform bool antialiasingOn;
 
 uniform float scale;                // {"label":"Scale",        "min":-10,  "max":10,   "step":0.01,     "default":2,    "group":"Fractal", "group_label":"Fractal parameters"}
 uniform float power;                // {"label":"Power",        "min":-20,  "max":20,   "step":0.1,     "default":8,    "group":"Fractal"}
@@ -90,13 +90,6 @@ mat3 rotationMatrixVector(vec3 v, float angle)
               (1.0 - c) * v.x * v.z - s * v.y, (1.0 - c) * v.y * v.z + s * v.x, c + (1.0 - c) * v.z * v.z);
 }
 
-
-
-
-// ============================================================================================ //
-
-
-#ifdef dESphereSponge
 uniform float sphereHoles;          // {"label":"Holes",        "min":3,    "max":6,    "step":0.01,    "default":4,    "group":"Fractal", "group_label":"Additional parameters"}
 uniform float sphereScale;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":2.05,    "group":"Fractal"}
 
@@ -126,13 +119,7 @@ vec3 SphereSponge(vec3 w)
     
     return vec3(d, cd, md);
 }
-#endif
 
-
-// ============================================================================================ //
-
-
-#ifdef dEMengerSponge
 // Pre-calculations
 vec3 halfSpongeScale = vec3(0.5) * scale;
 
@@ -170,13 +157,7 @@ vec3 MengerSponge(vec3 w)
     // The distance estimate, min distance, and fractional iteration count
     return vec3(d * 2.0 / scale, md, dot(cd, cd));
 }
-#endif
 
-
-// ============================================================================================ //
-
-
-#ifdef dEOctahedralIFS
 // Pre-calculations
 vec3 scale_offset = offset * (scale - 1.0);
 
@@ -210,14 +191,6 @@ vec3 OctahedralIFS(vec3 w)
         
     return vec3((length(w) - 2.0) * pow(scale, -float(maxIterations)), md, cd);
 }
-#endif
-
-
-// ============================================================================================ //
-
-
-
-#ifdef dEDodecahedronIFS
 
 // phi = 1.61803399
 uniform float phi;  // {"label":"Phi", "min":0.1, "max":3, "step":0.01, "default":1.618, "group":"Fractal"}
@@ -278,14 +251,7 @@ vec3 DodecahedronIFS(vec3 w)
         
     return vec3((length(w) - 2.0) * pow(scale, -float(maxIterations)), md, cd);
 }
-#endif
 
-
-// ============================================================================================ //
-
-
-
-#ifdef dEMandelbox
 uniform float sphereScale;          // {"label":"Sphere scale", "min":0.01, "max":3,    "step":0.01,    "default":1,    "group":"Fractal", "group_label":"Additional parameters"}
 uniform float boxScale;             // {"label":"Box scale",    "min":0.01, "max":3,    "step":0.001,   "default":0.5,  "group":"Fractal"}
 uniform float boxFold;              // {"label":"Box fold",     "min":0.01, "max":3,    "step":0.001,   "default":1,    "group":"Fractal"}
@@ -337,15 +303,7 @@ vec3 Mandelbox(vec3 w)
     // Return distance estimate, min distance, fractional iteration count
     return vec3((length(p.xyz) - fudgeFactor) / p.w, md, 0.33 * log(dot(c, c)) + 1.0);
 }
-#endif
 
-
-
-// ============================================================================================ //
-
-
-
-#ifdef dEMandelbulb
 uniform float juliaFactor; // {"label":"Juliabulb factor", "min":0, "max":1, "step":0.01, "default":0, "group":"Fractal", "group_label":"Additional parameters"}
 uniform float radiolariaFactor; // {"label":"Radiolaria factor", "min":-2, "max":2, "step":0.1, "default":0, "group":"Fractal"}
 uniform float radiolaria;       // {"label":"Radiolaria", "min":0, "max":1, "step":0.01, "default": 0, "group":"Fractal"}
@@ -418,13 +376,6 @@ vec3 Mandelbulb(vec3 w)
 
     return vec3(0.5 * log(r) * r / dr, md, 0.33 * log(dot(d, d)) + 1.0);
 }
-#endif
-
-
-
-// ============================================================================================ //
-
-
 
 // Define the ray direction from the pixel coordinates
 vec3 rayDirection(vec2 pixel)
@@ -480,7 +431,7 @@ bool intersectBoundingSphere(vec3 origin,
 vec3 generateNormal(vec3 z, float d)
 {
     float e = max(d * 0.5, MIN_NORM);
-    
+    /** TODO: Rewrite old dE version to use new uniforms!
     float dx1 = dE(z + vec3(e, 0, 0)).x;
     float dx2 = dE(z - vec3(e, 0, 0)).x;
     
@@ -489,8 +440,8 @@ vec3 generateNormal(vec3 z, float d)
     
     float dz1 = dE(z + vec3(0, 0, e)).x;
     float dz2 = dE(z - vec3(0, 0, e)).x;
-    
-    return normalize(vec3(dx1 - dx2, dy1 - dy2, dz1 - dz2));
+    */
+    //return normalize(vec3(dx1 - dx2, dy1 - dy2, dz1 - dz2));
 }
 
 
@@ -520,7 +471,7 @@ float ambientOcclusion(vec3 p, vec3 n, float eps)
     float d = 2.0 * eps;            // Start ray a little off the surface
     
     for (int i = 0; i < aoIterations; ++i) {
-        o -= (d - dE(p + n * d).x) * k;
+        o -= (d - dE(p + n * d).x) * k; // TODO: fix dE
         d += eps;
         k *= 0.5;                   // AO contribution drops as we move further from the surface 
     }
@@ -529,7 +480,7 @@ float ambientOcclusion(vec3 p, vec3 n, float eps)
 }
 
 
-// Calculate the output colour for each input pixel
+// Calculate the output color for each input pixel
 vec4 render(vec2 pixel)
 {
     vec3  ray_direction = rayDirection(pixel);
@@ -552,7 +503,7 @@ vec4 render(vec2 pixel)
         
         for (int i = 0; i < stepLimit; i++) {
             steps = i;
-            dist = dE(ray);
+            dist = dE(ray);//TODO: fix dE (maybe a function pointer?)
             dist.x *= surfaceSmoothness;
             
             // If we hit the surface on the previous step check again to make sure it wasn't
@@ -610,10 +561,6 @@ vec4 render(vec2 pixel)
     return color;
 }
 
-
-// ============================================================================================ //
-
-
 // The main loop
 void main()
 {
@@ -623,17 +570,17 @@ void main()
     cameraRotation = rotationMatrixVector(v, 180.0 - cameraYaw) * rotationMatrixVector(u, -cameraPitch) * rotationMatrixVector(w, cameraRoll);
     
     
-#ifdef antialiasing
-    for (float x = 0.0; x < 1.0; x += float(antialiasing)) {
-        for (float y = 0.0; y < 1.0; y += float(antialiasing)) {
-            color += render(gl_FragCoord.xy + vec2(x, y));
-            n += 1.0;
+    if (antialiasingOn) {
+        for (float x = 0.0; x < 1.0; x += float(antialiasing)) {
+            for (float y = 0.0; y < 1.0; y += float(antialiasing)) {
+                color += render(gl_FragCoord.xy + vec2(x, y));
+                n += 1.0;
+            }
         }
-    }
     color /= n;
-#else
-    color = render(gl_FragCoord.xy);
-#endif
+    else {
+        color = render(gl_FragCoord.xy);
+    }
     
     if (color.a < 0.00392) discard; // Less than 1/255
     

@@ -6,10 +6,10 @@ precision highp float;
  * 2D Fractal Shader Fragment Shader
  */
 
-#define dE Mandelbrot             // {"label":"Fractal type", "control":"select", "options":["Mandelbrot", "OrbitTrap", "Ducks"]}
+uniform int type; // Fractal type, 0 == Mandelbrot, 1 == OrbitTrap, 2 == Ducks
 
-#define maxIterations 50            // {"label":"Iterations", "min":1, "max":400, "step":1, "group_label":"2D parameters"}
-#define antialiasing 0.5            // {"label":"Anti-aliasing", "control":"bool", "default":false, "group_label":"Render quality"}
+uniform int maxIterations;// 50            // {"label":"Iterations", "min":1, "max":400, "step":1, "group_label":"2D parameters"}
+uniform float antialiasing;// 0.5            // {"label":"Anti-aliasing", "control":"bool", "default":false, "group_label":"Render quality"}
 
 uniform float scale;                // {"label":"Scale",        "min":-10,  "max":10,   "step":0.1,     "default":2,    "group":"Fractal", "group_label":"Fractal parameters"}
 uniform float power;                // {"label":"Power",        "min":-20,  "max":20,   "step":0.001,     "default":2,    "group":"Fractal"}
@@ -181,14 +181,6 @@ vec3 hsv2rgb(vec3 hsv)
     return color;
 }
 
-
-
-
-// ============================================================================================ //
-
-
-#ifdef dEMandelbrot
-
 float _bailout = exp(bailout);
 float log2Bailout = log(2.0 * log(_bailout));
 float logPower = log(abs(power));
@@ -311,14 +303,6 @@ vec4 Mandelbrot(vec2 z) {
     return color;
 }
 
-#endif
-
-
-// ============================================================================================ //
-
-
-#ifdef dEOrbitTrap
-
 vec4 orbitMapping(vec4 c, vec2 w)
 {
     vec4 color = vec4(0);
@@ -356,14 +340,6 @@ vec4 OrbitTrap(vec2 z) {
     
     return color;
 }
-
-#endif
-
-
-// ============================================================================================ //
-
-
-#ifdef dEDucks
 
 vec4 Ducks(vec2 z) {
     vec4  color = vec4(color3, 1.0);
@@ -406,17 +382,17 @@ vec4 Ducks(vec2 z) {
     return color;
 }
 
-#endif
-
-
-// ============================================================================================ //
-
-
 vec4 render(vec2 pixel) {
     vec2  z = ((pixel - (size * 0.5)) / size) * vec2(aspectRatio, 1.0) * cameraPosition.z + cameraPosition.xy;
     z *= rotationMatrix;
     
-    return dE(z);
+    if (type == 0) {
+        return Mandelbrot(z);
+    } else if (type == 1) {
+        return OrbitTrap(z);
+    } else {
+        return Ducks(z);
+    }
 }
 
 
@@ -430,30 +406,29 @@ void main()
     float rs = sin(radians(rotation));
     rotationMatrix = mat2(rc, rs, -rs, rc);
     
-#ifdef dEOrbitTrap
-    
-    float otrc = cos(radians(orbitTrapRotation));
-    float otrs = sin(radians(orbitTrapRotation));
-    orbitRotation = mat2(otrc, otrs, -otrs, otrc);
+    if (fractal == 1) {
+        float otrc = cos(radians(orbitTrapRotation));
+        float otrs = sin(radians(orbitTrapRotation));
+        orbitRotation = mat2(otrc, otrs, -otrs, otrc);
 
-    float otsc = cos(radians(orbitTrapSpin));
-    float otss = sin(radians(orbitTrapSpin));
-    orbitSpin = mat2(otsc, otss, -otss, otsc);
-    
-#endif
-    
-    
-#ifdef antialiasing
-    for (float x = 0.0; x < 1.0; x += float(antialiasing)) {
-        for (float y = 0.0; y < 1.0; y += float(antialiasing)) {
-            color += render(gl_FragCoord.xy + vec2(x, y));
-            n += 1.0;
-        }
+        float otsc = cos(radians(orbitTrapSpin));
+        float otss = sin(radians(orbitTrapSpin));
+        orbitSpin = mat2(otsc, otss, -otss, otsc);
     }
-    color /= n;
-#else
-    color = render(gl_FragCoord.xy);
-#endif
+    
+    
+    if (antialiasingOn) {
+        for (float x = 0.0; x < 1.0; x += float(antialiasing)) {
+            for (float y = 0.0; y < 1.0; y += float(antialiasing)) {
+                color += render(gl_FragCoord.xy + vec2(x, y));
+                n += 1.0;
+            }
+        }
+        color /= n;
+    }
+    else {
+        color = render(gl_FragCoord.xy);
+    }
     
     if (color.a < 0.00392) discard; // Less than 1/255
     
