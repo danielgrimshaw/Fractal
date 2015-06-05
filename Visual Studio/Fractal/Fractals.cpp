@@ -6,20 +6,16 @@
 #include <iostream>
 #include <cstdlib>
 #include "util.h"
-/*
-void draw(void);
-void idle_handler(void);
-void key_handler(unsigned char key, int x, int y);
-void bn_handler(int bn, int state, int x, int y);
-void mouse_handler(int x, int y);
+#include "Fractals.h"
 
 unsigned int prog;
 float cx = 0.7f, cy = 0.0f;
 float scale = 2.2f;
 int iter = 70;
 const float zoom_factor = 0.025f;
+static Shader * shaders = new Shader;
 
-int main(int argc, char ** argv) {
+int startFractal(int argc, char ** argv) {
 	void * img;
 
 	// initialize glut
@@ -59,10 +55,8 @@ int main(int argc, char ** argv) {
 	glEnable(GL_TEXTURE_1D);
 
 	// load and set the mandelbrot shader
-	if (!(prog = setup_shader("vertex.glsl", "mbrot.glsl"))) {
-		return EXIT_FAILURE;
-	}
-	set_uniform1i(prog, "iter", iter);
+	shaders->load("2d_fractals.vs", "2d_fractals.frag");
+	shaders->set_uniform1i("maxIterations", iter);
 
 	glViewport(0,0,800,600);
 	glutMainLoop();
@@ -70,8 +64,8 @@ int main(int argc, char ** argv) {
 }
 
 void draw(void) {
-	set_uniform2f(prog, "center", cx, cy);
-	set_uniform1f(prog, "scale", scale);
+	shaders->set_uniform2f("center", cx, cy);
+	shaders->set_uniform1f("scale", scale);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0, 0);
@@ -103,7 +97,7 @@ void key_handler(unsigned char key, int x, int y) {
 	case '-':
 		iter -= 10;
 		if (iter < 0) iter = 0;
-		set_uniform1i(prog, "iter", iter);
+		shaders->set_uniform1i("iter", iter);
 		break;
 
 	default:
@@ -146,4 +140,3 @@ void mouse_handler(int x, int y) {
 	px = fx;
 	py = fy;
 }
-*/

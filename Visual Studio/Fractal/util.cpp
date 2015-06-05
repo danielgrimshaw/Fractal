@@ -26,6 +26,12 @@ void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz);
 
 typedef unsigned int uint32_t;
 
+static char leftText[1024] = "Left text placeholder";
+static char rightText[1024] = "Right text placeholder";
+static char controlsText[1024] = "Scroll Wheel: Zoom in and out\r\n"
+		"+ key: Increase maximum iterations\r\n"
+		"- key: Decrease maximum iterations\r\n";
+
 unsigned long get_msec(void) {
 #if defined(__unix__) || defined(unix)
 	static struct timeval timeval, first_timeval;
@@ -42,18 +48,7 @@ unsigned long get_msec(void) {
 #endif	/* __unix__ */
 }
 
-void Shader::setDefaultsOpts() {
-	opt.width = 800;
-	opt.height = 400;
-	opt.vertex = NULL;
-	opt.fragment = NULL;
-	opt.vpath = NULL;
-	opt.fpath = NULL;
-}
 
-void loadShaders(const char * vname, const char * fname) {
-	
-}
 unsigned int setup_shader(const char * vname, const char * fname) { // vector shader, fragment shader
 	using namespace std;
 	unsigned int prog, vsdr, fsdr;
@@ -166,22 +161,26 @@ unsigned int setup_shader(const char * vname, const char * fname) { // vector sh
 	return prog;
 }
 
-void set_uniform1f(unsigned int prog, const char *name, float val) {
-	int loc = glGetUniformLocation(prog, name);
+void Shader::load(const char * vname, const char * fname){
+
+}
+
+void Shader::set_uniform1f(const char *name, float val) {
+	int loc = glGetUniformLocation(program, name);
 	if (loc != -1) {
 		glUniform1f(loc, val);
 	}
 }
 
-void set_uniform2f(unsigned int prog, const char *name, float v1, float v2) {
-	int loc = glGetUniformLocation(prog, name);
+void Shader::set_uniform2f(const char *name, float v1, float v2) {
+	int loc = glGetUniformLocation(program, name);
 	if (loc != -1) {
 		glUniform2f(loc, v1, v2);
 	}
 }
 
-void set_uniform1i(unsigned int prog, const char *name, int val) {
-	int loc = glGetUniformLocation(prog, name);
+void Shader::set_uniform1i(const char *name, int val) {
+	int loc = glGetUniformLocation(program, name);
 	if (loc != -1) {
 		glUniform1i(loc, val);
 	}
@@ -325,4 +324,14 @@ void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz) {
 	if (xsz) *xsz = w;
 	if (ysz) *ysz = h;
 	return pixels;
+}
+
+PCTSTR getLeftStrings() {
+	return leftText;
+}
+PCTSTR getRightStrings() {
+	return rightText;
+}
+PCTSTR getControls() {
+	return controlsText;
 }

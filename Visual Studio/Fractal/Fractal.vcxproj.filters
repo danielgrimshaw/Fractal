@@ -32,18 +32,30 @@
     <ClInclude Include="GUI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Fractals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="mbrot.glsl">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="fragment.glsl">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="vertex.glsl">
-      <Filter>Resource Files</Filter>
-    </Text>
     <Text Include="blankVertex.glsl">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="2d_fractals.vs">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="3d_fractals.vs">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="color_picker.vs">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="3d_fractals.frag">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="color_picker.frag">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="2d_fractals.frag">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
@@ -53,15 +65,6 @@
     </_EmbedManagedResourceFile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ducks.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="orbitTrap.glsl">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="html1.htm" />
-    <None Include="listbox1.bin">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

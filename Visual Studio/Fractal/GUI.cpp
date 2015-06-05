@@ -12,7 +12,8 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/freeglut.h>
-//#include "util.h"
+#include "util.h"
+#include "Fractals.h"
 #include "GUI.h"
 
 #include <windows.h>
@@ -67,7 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
-
+	startFractal(NULL, NULL);
 	while (GetMessage(&msg, NULL, 0, 0) > 0) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -77,11 +78,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 LRESULT CALLBACK guiProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	HDC hdc;
+	PAINTSTRUCT ps;
+	static RECT rect;
+	static PCTSTR controls = getControls();
+	static PCTSTR leftText = getLeftStrings();
+	static PCTSTR rightText = getRightStrings();
+
 	switch (msg)
 	{
 	case WM_LBUTTONDOWN:
 		{
-			MessageBox(hwnd, "Written by Daniel Grimshaw", "Fractal",
+			MessageBox(hwnd, controls, "Controls",
+				MB_OK | MB_ICONINFORMATION);
+		}
+		break;
+	case WM_RBUTTONDOWN:
+		{
+			MessageBox(hwnd, "Written by Daniel Grimshaw", "Fractal Author",
 				MB_OK | MB_ICONINFORMATION);
 		}
 		break;
@@ -93,19 +107,10 @@ LRESULT CALLBACK guiProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_PAINT:
 		{
-			PAINTSTRUCT ps;
-			HDC hDC = BeginPaint(hwnd, &ps);
-			LPRECT r = NULL;
-			GetClientRect(hwnd, r);
-			char *cpaText[] = {
-				"Hello World!",
-				"This is a hello world application made in the Win32 API",
-				"Did it work?"
-			};
-			for (int i = 0; i < 3; i++) {
-				char * str = cpaText[i];
-				DrawText(hDC, str, -1, r, DT_CENTER | DT_WORDBREAK);
-			}
+			hdc = BeginPaint(hwnd, &ps);
+			GetClientRect(hwnd, &rect);
+			DrawText(hdc, leftText, -1, &rect, DT_LEFT);
+			DrawText(hdc, rightText, -1, &rect, DT_RIGHT);
 			EndPaint(hwnd, &ps);
 		}
 		break;

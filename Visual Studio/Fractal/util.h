@@ -1,5 +1,5 @@
-#ifndef _UTIL_H_
-#define _UTIL_H_
+#ifndef __UTIL_H__
+#define __UTIL_H__
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
@@ -8,29 +8,23 @@ unsigned long get_msec(void);
 
 void *load_image(const char *fname, unsigned long *xsz, unsigned long *ysz);
 
-typedef struct options {
-	unsigned int window, width, height, vertex, fragment;
-	char * vpath, fpath;
-	const char * define = "dE";
-} Options;
-
 class Shader {
 public:
-	void setDefaultsOpts();
-	void setOpts(void * opts[]);
-	void ** optionsAsArray();
+	void setDefaultUniforms();
+	void set_uniform1f(const char *name, float val);
+	void set_uniform2f(const char *name, float v1, float v2);
+	void set_uniform1i(const char *name, int val);
 	void setParameter();
 	void load(const char * vname, const char * fname);
-	bool createShader(const char * vertex_src, const char * fragment_src);
 	const char * parseShader(const char * type, const char * src);
 	unsigned int createShader(const char * type, const char * src, const char * opts);
 private:
-	Options opt;
-	void loadShader(char * type, char * path) {
+	unsigned int program;
+	unsigned int loadShader(char * type, char * path) {
 		using namespace std;
 		unsigned int sdr;
 		char * src_buf;
-		int success, linked;
+		int success;
 		string str;
 		ifstream t;
 
@@ -79,16 +73,7 @@ private:
 			}
 			exit(-1);
 		}
-		if (type == "vertex") {
-			opt.vertex = sdr;
-		}
-		else if (type == "fragment") {
-			opt.fragment = sdr;
-		}
-		else {
-			cout << "Error! Invalid shader type" << endl;
-			exit(-1);
-		}
+		return sdr;
 	}
 };
 
@@ -96,9 +81,10 @@ void reset();
 void resize(unsigned int width, unsigned int height);
 unsigned int * getPixels(unsigned int x, unsigned int y, unsigned int width, unsigned int height);
 
-void sendUniforms();
-void sendUniform(int key);
-
 void loadTextures();
 void loadTexture(const char * path);
+
+PCTSTR getLeftStrings();
+PCTSTR getRightStrings();
+PCTSTR getControls();
 #endif	/* _UTIL_H_ */
