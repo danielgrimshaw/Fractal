@@ -8,25 +8,26 @@
 #include <iostream>
 #include "util.h"
 
-void draw(void);
-void mDraw(void);
-void jDraw(void);
-void idle_handler(void);
-void mIdle_handler(void);
-void jIdle_handler(void);
-void key_handler(unsigned char key, int x, int y);
-void bn_handler(int bn, int state, int x, int y);
-void mouse_handler(int x, int y);
-void mMouse_handler(int x, int y);
-void jMouse_handler(int x, int y);
+void draw(void); // Redraw handler
+void mDraw(void); // Mandelbrot redraw handler
+void jDraw(void); // Julia redraw handler
+void idle_handler(void); // Idle handler
+void mIdle_handler(void); // Mandelbrot idle handler
+void jIdle_handler(void); // Julia idle handler
+void key_handler(unsigned char key, int x, int y); // keyboard driver
+void bn_handler(int bn, int state, int x, int y); // Mouse button handler (Mandelbrot only)
+void mouse_handler(int x, int y); // Mouse motion handler
+void mMouse_handler(int x, int y); // Mandelbrot mouse motion handler
+void jMouse_handler(int x, int y); // Julia mouse motion handler
 
-unsigned int prog;
-float mcx = 0.7f, mcy = 0.0f, jcx, jcy;
-float mscale = 2.2f;
-int iter = 70;
-const float mzoom_factor = 0.025f;
-int fractal = 0;
-int interactive = 0;
+unsigned int prog; // Program ID
+float mcx = 0.7f, mcy = 0.0f, jcx, jcy; // C values
+float mscale = 2.2f; // Mandelbrot scaling factor
+int iter = 70; // Bailout iterations (Most GPU's can manage about 750 iterations before they start to lag)
+const float mzoom_factor = 0.025f; // Mandelbrot zoom
+int fractal = 0; // Fractal ID (0 == Mandelbrot, 1 == Julia)
+int interactive = 0; // Julia interactive mode
+// Controls list
 const char * controls = "Controls:\r\n"
 "\'c\', \'h\', or \'?\': Print these controls\r\n"
 "\'m\': Go to mandelbrot mode\r\n"
@@ -66,10 +67,9 @@ int main(int argc, char ** argv) {
 	glutMouseFunc(bn_handler);
 	glutMotionFunc(mouse_handler);
 	
-	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
+	// Load all library function pointers
     glewExperimental = GL_TRUE;
-    // Initialize GLEW to setup the OpenGL Function pointers
-    if (glewInit() != GLEW_OK) {
+    if (glewInit() != GLEW_OK) { // Doesn't run without GLEW
         std::cout << "Failed to initialize GLEW" << std::endl;
         return -1;
     } 
@@ -80,35 +80,35 @@ int main(int argc, char ** argv) {
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 
-	if (!(img = load_image("pal.ppm", 0, 0))) {
+	if (!(img = load_image("pal.ppm", 0, 0))) { // pal.ppm is used for texture
 		return EXIT_FAILURE;
 	}
-	glTexImage1D(GL_TEXTURE_1D, 0, 4, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, img);
-	delete img;
+	glTexImage1D(GL_TEXTURE_1D, 0, 4, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, img); // Load image to GPU
+	delete img; // CPU ram no longer needs image
 
-	glEnable(GL_TEXTURE_1D);
+	glEnable(GL_TEXTURE_1D); // Turn on the texture
 
-	// load and set the mandelbrot shader
+	// load and set the shader
 	if (!(prog = setup_shader("mbrot.glsl"))) {
 		return EXIT_FAILURE;
 	}
-	set_uniform1i(prog, "iter", iter);
+	set_uniform1i(prog, "iter", iter); // Tell shader that we are currently doing 70 iterations
 	cout << "Set to mandelbrot" << endl;
 
-	glViewport(0,0,800,600);
-	glutMainLoop();
+	glViewport(0,0,800,600); // Tell GPU where to draw to and window size
+	glutMainLoop(); // Enter callback loop
 	return 0;
 }
 
 void draw(void) {
-	fractal == 0 ? mDraw() : jDraw();
+	fractal == 0 ? mDraw() : jDraw(); // Call Mandelbrot or Julia draw methods
 }
 
 void mDraw(void) {
-	set_uniform2f(prog, "center", mcx, mcy);
-	set_uniform1f(prog, "scale", mscale);
+	set_uniform2f(prog, "center", mcx, mcy); // Set center
+	set_uniform1f(prog, "scale", mscale); // Set scale
 
-	glBegin(GL_QUADS);
+	glBegin(GL_QUADS); // Draw rectangular window to write to
 	glTexCoord2f(0, 0);
 	glVertex2f(-1, -1);
 	glTexCoord2f(1, 0);
@@ -123,14 +123,14 @@ void mDraw(void) {
 }
 
 void jDraw(void) {
-	if (!interactive) {
+	if (!interactive) { // Animate
 		float t = (float)get_msec() / 1000.0f;
 		jcx = (sin(cos(t / 10.0f) * 10.0f) + cos(t * 2.0f) / 4.0f + sin(t * 3.0f) / 6.0f) * 0.8f;
 		jcy = (cos(sin(t / 10.0f) * 10.0f) + sin(t * 2.0f) / 4.0f + cos(t * 3.0f) / 6.0f) * 0.8f;
 	}
 	set_uniform2f(prog, "c", jcx, jcy);
 
-	glBegin(GL_QUADS);
+	glBegin(GL_QUADS); // Draw window to write to
 	glTexCoord2f(0, 0);
 	glVertex2f(-1, -1);
 	glTexCoord2f(1, 0);
@@ -149,19 +149,19 @@ void idle_handler(void) {
 }
 
 void mIdle_handler(void) {
-	glutPostRedisplay();
+	glutPostRedisplay(); // Fractal doesn't need to draw while waiting
 }
 
 void jIdle_handler(void) {
-	draw();
+	draw(); // Julia needs to draw for animations
 }
 
 void key_handler(unsigned char key, int x, int y) {
 	using namespace std;
-	switch (key) {
-	case 27:
+	switch (key) { // Keyboard
+	case 27: // ESC
 	case 'q':
-	case 'Q':
+	case 'Q': // Quit
 		exit(0);
 		break;
 	case 'c':
@@ -169,11 +169,11 @@ void key_handler(unsigned char key, int x, int y) {
 	case 'h':
 	case 'H':
 	case '/':
-	case '?':
+	case '?': // help
 		cout << controls << endl;
 		break;
 	case 'M':
-	case 'm':
+	case 'm': // Switch to mandelbrot mode
 		fractal = 0;
 		prog = setup_shader("mbrot.glsl");
 		set_uniform1i(prog, "iter", iter);
@@ -182,7 +182,7 @@ void key_handler(unsigned char key, int x, int y) {
 		glViewport(0, 0, 800, 600);
 		break;
 	case 'J':
-	case 'j':
+	case 'j': // Switch to Julia mode
 		fractal = 1;
 		prog = setup_shader("julia.glsl");
 		set_uniform1i(prog, "iter", iter);
@@ -191,28 +191,28 @@ void key_handler(unsigned char key, int x, int y) {
 		glViewport(0, 0, 800, 600);
 		break;
 	case '+':
-	case '=':
+	case '=': // Increase iterations
 		if (1) { // allows for less code
 			iter += 10;
 		}
 		else {
 	case '_':
-	case '-':
+	case '-': // Decrease iterations
 		iter -= 10;
 		if (iter < 0) iter = 0;
 		}
-		cout << "iterations: " << iter << endl;
+		cout << "Iterations: " << iter << endl;
 		set_uniform1i(prog, "iter", iter);
 		break;
-	case ' ':
+	case ' ': // Toggle julia interactive mode
 		interactive = !interactive;
 		break;
-	default:
+	default: // No key was pressed that is of importance
 		break;
 	}
 }
 
-int which_bn;
+int which_bn; // Button id
 float px, py;
 
 void bn_handler(int bn, int state, int x, int y) {
@@ -222,10 +222,10 @@ void bn_handler(int bn, int state, int x, int y) {
 	py = 2.0f * ((float)y / (float)yres - 0.5f);
 	which_bn = bn;
 
-	if (which_bn == 3) {
+	if (which_bn == 3) { // Scroll up
 		mscale *= 1 - mzoom_factor * 2.0f;
 	}
-	else if (which_bn == 4) {
+	else if (which_bn == 4) { // Scroll down
 		mscale *= 1 + mzoom_factor * 2.0f;
 	}
 }
@@ -255,7 +255,7 @@ void mMouse_handler(int x, int y) {
 void jMouse_handler(int x, int y) {
 	int xres = glutGet(GLUT_WINDOW_WIDTH);
 	int yres = glutGet(GLUT_WINDOW_HEIGHT);
-	if (interactive) {
+	if (interactive) { // If interactive mode is on, set C to window coords
 		jcx = (float)PX_TO_RE(x);
 		jcy = (float)PY_TO_IM(yres - y);
 	}

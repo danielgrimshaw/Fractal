@@ -1,13 +1,14 @@
 #if defined(__unix__) || defined(unix)
 #include <time.h>
 #include <sys/time.h>
-#else	/* assume windows */
+#else	// assume windows
 #include <windows.h>
-#endif	/* __unix__ */
+#endif	// __unix__
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdint.h>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -21,12 +22,10 @@
 
 #include "util.h"
 
-int check_ppm(std::ifstream & fp);
-void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz);
+int check_ppm(std::ifstream & fp); // Checks the validity of a P6 ppm image file
+void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz); // Loads a P6 image file
 
-typedef unsigned int uint32_t;
-
-unsigned long get_msec(void) {
+unsigned long get_msec(void) { // Returns system run time
 #if defined(__unix__) || defined(unix)
 	static struct timeval timeval, first_timeval;
 
@@ -39,104 +38,105 @@ unsigned long get_msec(void) {
 	return (timeval.tv_sec - first_timeval.tv_sec) * 1000 + (timeval.tv_usec - first_timeval.tv_usec) / 1000;
 #else
 	return GetTickCount();
-#endif	/* __unix__ */
+#endif	// __unix__
 }
 
-unsigned int setup_shader(const char *fname) {
+unsigned int setup_shader(const char *fname) { // Loads, compiles, and tells GPU to use shader
 	using namespace std;
-	unsigned int prog, sdr;
-	char * src_buf;
-	int success, linked;
-	string str;
-	ifstream t;
+	unsigned int prog, sdr; // OpenGL IDs
+	char * src_buf; // Code buffer 2
+	int success, linked; // Success flags
+	string str; // Code buffer one
+	ifstream t; // File buffer
 
 	t.open(fname);
-	t.seekg(0, std::ios::end);
-	str.reserve(t.tellg());
-	t.seekg(0, std::ios::beg);
+	t.seekg(0, std::ios::end); // Go to the end
+	str.reserve(t.tellg()); // Read location (length of the file) and reserve a string that big
+	t.seekg(0, std::ios::beg); // Go back to the beginning
 
-	str.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+	str.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>()); // Assign the entire file to str
 
-	src_buf = new char[str.length() + 1];
-	src_buf = (char *)str.c_str();
-	src_buf[str.length()] = 0;
+	src_buf = new char[str.length() + 1]; // Allocate memory for C-style string
+	src_buf = (char *)str.c_str(); // Assign string
+	src_buf[str.length()] = 0; // Doesn't work without this for some reason
 	t.close();
 
-	sdr = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(sdr, 1, (const char **)&src_buf, 0);
-	//delete[] src_buf;
+	sdr = glCreateShader(GL_FRAGMENT_SHADER); // Create a fragment shader
+	glShaderSource(sdr, 1, (const char **)&src_buf, 0); // Use src_buf as the code
+	//delete[] src_buf; // Doesn't work for some reason
 
-	glCompileShader(sdr);
-	glGetShaderiv(sdr, GL_COMPILE_STATUS, &success);
+	glCompileShader(sdr); // Compile shader
+	glGetShaderiv(sdr, GL_COMPILE_STATUS, &success); // Did it work?
 	if (!success) {
-		int info_len;
+		int info_len; // No.
 		char *info_log;
 
-		glGetShaderiv(sdr, GL_INFO_LOG_LENGTH, &info_len);
+		glGetShaderiv(sdr, GL_INFO_LOG_LENGTH, &info_len); // Read size of log
 		if (info_len > 0) {
-			if (!(info_log = new char[info_len + 1])) {
+			if (!(info_log = new char[info_len + 1])) { // User needs significantly more RAM
 				cout << "Unable to allocate info_log (util.cpp: line 90)" << endl;
 				return 0;
 			}
-			glGetShaderInfoLog(sdr, info_len, 0, info_log);
+			glGetShaderInfoLog(sdr, info_len, 0, info_log); // Get info log
 			cout << "shader compilation failed: " << info_log << endl;
 			delete[] info_log;
 		}
-		else {
+		else { // There is no info log?
 			cout << "shader compilation failed" << endl;
 		}
 		return 0;
 	}
 
-	prog = glCreateProgram();
-	glAttachShader(prog, sdr);
-	glLinkProgram(prog);
-	glGetProgramiv(prog, GL_LINK_STATUS, &linked);
+	prog = glCreateProgram(); // Allocate space on the GPU for a program
+	glAttachShader(prog, sdr); // Program needs the compiled code
+	glLinkProgram(prog); // Makes the program executable
+	glGetProgramiv(prog, GL_LINK_STATUS, &linked); // Did it work?
 	if (!linked) {
-		int info_len;
+		int info_len; // no
 		char *info_log;
 
-		glGetShaderiv(sdr, GL_INFO_LOG_LENGTH, &info_len);
+		glGetShaderiv(sdr, GL_INFO_LOG_LENGTH, &info_len); // Get info log size
 		if (info_len > 0) {
-			if (!(info_log = new char[info_len + 1])) {
+			if (!(info_log = new char[info_len + 1])) { // User needs more RAM
 				cout << "Unable to allocate info_log (util.cpp: line 90)" << endl;
 				return 0;
 			}
-			glGetShaderInfoLog(sdr, info_len, 0, info_log);
+			glGetShaderInfoLog(sdr, info_len, 0, info_log); // Read info log
 			cout << "shader compilation failed: " << info_log << endl;
 			delete[] info_log;
 		}
-		else {
+		else { // There was no info log?
 			cout << "shader compilation failed" << endl;
 		}
 		return 0;
 	}
 
-	glUseProgram(prog);
-	return prog;
+	glUseProgram(prog); // Instruct the GPU to use this program
+	return prog; // returns the program ID
 }
 
-void set_uniform1f(unsigned int prog, const char *name, float val) {
+void set_uniform1f(unsigned int prog, const char *name, float val) { // Sets float uniforms
 	int loc = glGetUniformLocation(prog, name);
 	if (loc != -1) {
 		glUniform1f(loc, val);
 	}
 }
 
-void set_uniform2f(unsigned int prog, const char *name, float v1, float v2) {
+void set_uniform2f(unsigned int prog, const char *name, float v1, float v2) { // Sets vec2 uniforms
 	int loc = glGetUniformLocation(prog, name);
 	if (loc != -1) {
 		glUniform2f(loc, v1, v2);
 	}
 }
 
-void set_uniform1i(unsigned int prog, const char *name, int val) {
+void set_uniform1i(unsigned int prog, const char *name, int val) { // Sets int and bool uniforms
 	int loc = glGetUniformLocation(prog, name);
 	if (loc != -1) {
 		glUniform1i(loc, val);
 	}
 }
 
+//How does the system run?
 #if !defined(LITTLE_ENDIAN) && !defined(BIG_ENDIAN)
 #if  defined(__i386__) || defined(__ia64__) || defined(WIN32) || \
     (defined(__alpha__) || defined(__alpha)) || \
@@ -159,33 +159,33 @@ void set_uniform1i(unsigned int prog, const char *name, int val) {
 #define PACK_COLOR24(r, g, b) (((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff))
 #endif
 
-void * load_image(const char *fname, unsigned long *xsz, unsigned long *ysz) { // TODO: rewrite this
+void * load_image(const char *fname, unsigned long *xsz, unsigned long *ysz) { // Load a ppm image
 	using namespace std;
 	ifstream fp(fname);
-	if (!(fp.is_open())) {
+	if (!(fp.is_open())) { // Cannot open file
 		cout << "failed to open: " << fname << endl;
 		return 0;
 	}
 
-	if (check_ppm(fp)) {
-		return load_ppm(fp, xsz, ysz);
+	if (check_ppm(fp)) { // Is it a P6 ppm?
+		return load_ppm(fp, xsz, ysz); // Open the image
 	}
 
 	fp.close();
-	cout << "unsupported image format" << endl;
+	cout << "unsupported image format" << endl; // It is not a P6 ppm image
 	return 0;
 }
 
 int check_ppm(std::ifstream & fp) {
 	using namespace std;
-	fp.seekg(0, ios::beg);
+	fp.seekg(0, ios::beg); // Go to the begining
 	if (fp.get() == 'P' && fp.get() == '6') {
-		return 1;
+		return 1; // It is a P6 ppm
 	}
-	return 0;
+	return 0; // It is not a P6 ppm
 }
 
-static int read_to_wspace(std::ifstream & fp, char * buf, int bsize) {
+static int read_to_wspace(std::ifstream & fp, char * buf, int bsize) { // Read image until whitespace
 	int count = 0;
 	char c;
 
@@ -205,7 +205,7 @@ static int read_to_wspace(std::ifstream & fp, char * buf, int bsize) {
 	return count;
 }
 
-void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz) {
+void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz) { // Load P6 PPM
 	using namespace std;
 	char buf[64];
 	int bytes, raw;
@@ -255,15 +255,15 @@ void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz) {
 		return 0;
 	}
 
-	sz = h * w;
-	for (i = 0; i<sz; i++) {
+	sz = h * w; // size of image
+	for (i = 0; i < sz; i++) {
 		int r = fp.get();
 		int g = fp.get();
 		int b = fp.get();
 
 		if (r == -1 || g == -1 || b == -1) {
 			delete [] pixels;
-			fp.close();
+			fp.close(); // Image is corrupt
 			cout << "load_ppm: EOF while reading pixel data";
 			return 0;
 		}
