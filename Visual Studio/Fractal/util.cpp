@@ -49,7 +49,6 @@ unsigned int setup_shader(const char *fname) {
 	int success, linked;
 	string str;
 	ifstream t;
-	uint32_t str_location = (uint32_t)&str;
 
 	t.open(fname);
 	t.seekg(0, std::ios::end);
@@ -57,17 +56,7 @@ unsigned int setup_shader(const char *fname) {
 	t.seekg(0, std::ios::beg);
 
 	str.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
-	/*
-	t.seekg(0, ios::end);
-	len = t.tellg();
-	t.seekg(0, ios::beg);
-	src_buf = new char[len+1];
-	if (src_buf == 0) {
-		cout << "Unable to allocate " << len << "bytes for " << fname << endl;
-		return 0;
-	}
-	t.read(src_buf, len);
-	t.close();*/
+
 	src_buf = new char[str.length() + 1];
 	src_buf = (char *)str.c_str();
 	src_buf[str.length()] = 0;

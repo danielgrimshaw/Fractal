@@ -28,13 +28,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="frament.frag">
-      <Filter>Resource Files</Filter>
-    </Text>
     <Text Include="mbrot.glsl">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="vector.vs">
+    <Text Include="julia.glsl">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
