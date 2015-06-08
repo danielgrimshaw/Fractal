@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <thread>
 
 #ifndef GLEW_STATIC
 #define GLEW_STATIC
@@ -34,7 +35,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	MSG msg;
 
 	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = 0;
+	wc.style = CS_VREDRAW | CS_HREDRAW;
 	wc.lpfnWndProc = guiProc;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
@@ -66,11 +67,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		return 0;
 	}
 
+	std::thread fractal(startFractal);
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
-	startFractal(NULL, NULL);
+	static RECT rect;
 	while (GetMessage(&msg, NULL, 0, 0) > 0) {
+		GetClientRect(hwnd, &rect);
 		TranslateMessage(&msg);
+		InvalidateRect(hwnd, &rect, true);
+		UpdateWindow(hwnd);
 		DispatchMessage(&msg);
 	}
 	return (int)(msg.wParam);
@@ -78,12 +83,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 LRESULT CALLBACK guiProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	HDC hdc;
-	PAINTSTRUCT ps;
 	static RECT rect;
 	static PCTSTR controls = getControls();
-	static PCTSTR leftText = getLeftStrings();
-	static PCTSTR rightText = getRightStrings();
+	PAINTSTRUCT ps;
+	HDC hdc;
 
 	switch (msg)
 	{
@@ -101,12 +104,15 @@ LRESULT CALLBACK guiProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
+		exit(0);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	case WM_PAINT:
 		{
+			PCTSTR leftText = getLeftStrings();
+			PCTSTR rightText = getRightStrings();
 			hdc = BeginPaint(hwnd, &ps);
 			GetClientRect(hwnd, &rect);
 			DrawText(hdc, leftText, -1, &rect, DT_LEFT);

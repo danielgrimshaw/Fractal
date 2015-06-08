@@ -64,7 +64,4 @@
       <Filter>Resource Files</Filter>
     </_EmbedManagedResourceFile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="html1.htm" />
-  </ItemGroup>
 </Project>

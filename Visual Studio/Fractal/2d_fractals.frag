@@ -1,15 +1,17 @@
+#version 330 core
 #ifdef GL_ES
-precision highp float;
+precision mediump float;
 #endif
 
 /**
  * 2D Fractal Shader Fragment Shader
  */
 
-uniform int type; // Fractal type, 0 == Mandelbrot, 1 == OrbitTrap, 2 == Ducks
+uniform int fractal; // Fractal type, 0 == Mandelbrot, 1 == OrbitTrap, 2 == Ducks
 
 uniform int maxIterations;// 50            // {"label":"Iterations", "min":1, "max":400, "step":1, "group_label":"2D parameters"}
-uniform float antialiasing;// 0.5            // {"label":"Anti-aliasing", "control":"bool", "default":false, "group_label":"Render quality"}
+#define antialiasing 0.5
+uniform bool antialiasingOn;
 
 uniform float scale;                // {"label":"Scale",        "min":-10,  "max":10,   "step":0.1,     "default":2,    "group":"Fractal", "group_label":"Fractal parameters"}
 uniform float power;                // {"label":"Power",        "min":-20,  "max":20,   "step":0.001,     "default":2,    "group":"Fractal"}
@@ -386,9 +388,9 @@ vec4 render(vec2 pixel) {
     vec2  z = ((pixel - (size * 0.5)) / size) * vec2(aspectRatio, 1.0) * cameraPosition.z + cameraPosition.xy;
     z *= rotationMatrix;
     
-    if (type == 0) {
+    if (fractal == 0) {
         return Mandelbrot(z);
-    } else if (type == 1) {
+    } else if (fractal == 1) {
         return OrbitTrap(z);
     } else {
         return Ducks(z);
