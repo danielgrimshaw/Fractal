@@ -1,5 +1,3 @@
-#version 330
-
 uniform sampler1D tex; // Texture
 uniform vec2 c; // C value (shape)
 uniform int iter; // Iterations

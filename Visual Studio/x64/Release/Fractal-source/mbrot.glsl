@@ -1,5 +1,3 @@
-#version 330
-
 uniform sampler1D tex; // Texture
 uniform vec2 center; // center point
 uniform float scale; // scale
