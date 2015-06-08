@@ -27,6 +27,20 @@ int iter = 70;
 const float mzoom_factor = 0.025f;
 int fractal = 0;
 int interactive = 0;
+const char * controls = "Controls:\r\n"
+"\'c\', \'h\', or \'?\': Print these controls\r\n"
+"\'m\': Go to mandelbrot mode\r\n"
+"\'j\': Go to jula mode\r\n"
+"\'+\': Increase iterations\r\n"
+"\'-\': Decrease iterations\r\n"
+"\r\n"
+"Mandelbrot additional controls:\r\n"
+"\tClick and drag: Zoom in and out\r\n"
+"\tMouse scroll: Zoom in and out\r\n"
+"\r\n"
+"Julia additional controls:\r\n"
+"\tMouse click or drag: Change C value (shape)\r\n"
+"\tSpace bar: Toggle interactive mode\r\n";
 
 #define PX_TO_RE(x)		(1.5 * ((x) - xres / 2) / (0.5 * xres))
 #define PY_TO_IM(y)		(((y) - yres / 2) / (0.5 * yres))
@@ -34,6 +48,9 @@ int interactive = 0;
 int main(int argc, char ** argv) {
 	using namespace std;
 	void * img;
+
+	// Print controls
+	cout << controls << endl;
 
 	// initialize glut
 	
@@ -147,6 +164,14 @@ void key_handler(unsigned char key, int x, int y) {
 	case 'Q':
 		exit(0);
 		break;
+	case 'c':
+	case 'C':
+	case 'h':
+	case 'H':
+	case '/':
+	case '?':
+		cout << controls << endl;
+		break;
 	case 'M':
 	case 'm':
 		fractal = 0;
@@ -160,6 +185,7 @@ void key_handler(unsigned char key, int x, int y) {
 	case 'j':
 		fractal = 1;
 		prog = setup_shader("julia.glsl");
+		set_uniform1i(prog, "iter", iter);
 		cout << "Set to julia" << endl;
 		glEnable(GL_TEXTURE_1D);
 		glViewport(0, 0, 800, 600);
@@ -203,6 +229,7 @@ void bn_handler(int bn, int state, int x, int y) {
 		mscale *= 1 + mzoom_factor * 2.0f;
 	}
 }
+
 void mouse_handler(int x, int y) {
 	fractal == 0 ? mMouse_handler(x, y) : jMouse_handler(x, y);
 }
@@ -228,6 +255,8 @@ void mMouse_handler(int x, int y) {
 void jMouse_handler(int x, int y) {
 	int xres = glutGet(GLUT_WINDOW_WIDTH);
 	int yres = glutGet(GLUT_WINDOW_HEIGHT);
-	jcx = (float)PX_TO_RE(x);
-	jcy = (float)PY_TO_IM(yres - y);
+	if (interactive) {
+		jcx = (float)PX_TO_RE(x);
+		jcy = (float)PY_TO_IM(yres - y);
+	}
 }
