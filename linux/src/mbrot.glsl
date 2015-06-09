@@ -1,9 +1,7 @@
-#version 330
-
-uniform sampler1D tex;
-uniform vec2 center;
-uniform float scale;
-uniform int iter;
+uniform sampler1D tex; // Texture
+uniform vec2 center; // center point
+uniform float scale; // scale
+uniform int iter; // Iterations
 
 void main() {
 	vec2 z, c;
