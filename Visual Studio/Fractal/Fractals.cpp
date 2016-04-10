@@ -1,32 +1,70 @@
-#include <stdio.h>
-#include <stdlib.h>
+
+// OpenGL
 #ifndef GLEW_STATIC
 #define GLEW_STATIC
 #endif
 #include <GL/glew.h>
 #include <GL/glut.h>
+
+// OpenGL Mathematics
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+// Standard Libraries
 #include <iostream>
+
+// Header Files
 #include "util.h"
+#include "Shader.h"
+#include "Program.h"
 
-void draw(void); // Redraw handler
-void mDraw(void); // Mandelbrot redraw handler
-void jDraw(void); // Julia redraw handler
+// Handlers
+void draw_handler(void); // Redraw handler
 void idle_handler(void); // Idle handler
-void mIdle_handler(void); // Mandelbrot idle handler
-void jIdle_handler(void); // Julia idle handler
-void key_handler(unsigned char key, int x, int y); // keyboard driver
-void bn_handler(int bn, int state, int x, int y); // Mouse button handler (Mandelbrot only)
+void resize_handler(int width, int height); // Resize Handler
+void key_handler(unsigned char key, int x, int y); // Keyboard driver
+void button_handler(int bn, int state, int x, int y); // Mouse button handler
 void mouse_handler(int x, int y); // Mouse motion handler
-void mMouse_handler(int x, int y); // Mandelbrot mouse motion handler
-void jMouse_handler(int x, int y); // Julia mouse motion handler
+void mouse_idle_handler(int x, int y); // Passive mouse motion handler
 
-unsigned int prog; // Program ID
-float mcx = 0.7f, mcy = 0.0f, jcx, jcy; // C values
-float mscale = 2.2f; // Mandelbrot scaling factor
-int iter = 70; // Bailout iterations (Most GPU's can manage about 750 iterations before they start to lag)
-const float mzoom_factor = 0.025f; // Mandelbrot zoom
-int fractal = 0; // Fractal ID (0 == Mandelbrot, 1 == Julia)
-int interactive = 0; // Julia interactive mode
+// Filenames
+std::string mbrot_vertex_name = "mbrot_vert.glsl";
+std::string mbrot_fragment_name = "mbrot_frag.glsl";
+std::string julia_vertex_name = "julia_vert.glsl";
+std::string julia_fragment_name = "julia_frag.glsl";
+
+// Shaders
+Shader mbrot_vertex = Shader(GL_VERTEX_SHADER, mbrot_vertex_name);
+Shader mbrot_fragment = Shader(GL_FRAGMENT_SHADER, mbrot_fragment_name);
+Shader julia_vertex = Shader(GL_VERTEX_SHADER, julia_vertex_name);
+Shader julia_fragment = Shader(GL_FRAGMENT_SHADER, julia_fragment_name);
+
+// Programs
+Program mandelbrot = Program(mbrot_vertex, mbrot_fragment);
+Program julia = Program(julia_vertex, julia_fragment);
+
+// Buffer Objects
+GLuint VBO, VAO, EBO;
+
+// Camera
+glm::vec3 camera_pos = glm::vec3(0.0f, 0.0f, 3.0f); // Location of Camera
+glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, 0.0f); // Where the camera is pointing
+glm::vec3 camera_dir = glm::normalize(camera_pos - camera_target); // Direction from the origin to the camera
+glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 camera_right = glm::normalize(glm::cross(up, camera_dir));
+glm::vec3 camera_up = glm::cross(camera_dir, camera_right);
+glm::vec3 camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
+
+// Uniforms
+glm::mat4 model_transform; // Transformation for each model on the scene
+glm::mat4 view; // Transformation of the scene for the camera
+glm::mat4 projection; // Projection matrix (simulates perspective)
+
+GLfloat yaw = -90.0f;
+GLfloat pitch = 0.0f;
+GLfloat fov = 45.0f;
+
 // Controls list
 const char * controls = "Controls:\r\n"
 "\'c\', \'h\', or \'?\': Print these controls\r\n"
@@ -43,12 +81,20 @@ const char * controls = "Controls:\r\n"
 "\tMouse click or drag: Change C value (shape)\r\n"
 "\tSpace bar: Toggle interactive mode\r\n";
 
-#define PX_TO_RE(x)		(1.5 * ((x) - xres / 2) / (0.5 * xres))
-#define PY_TO_IM(y)		(((y) - yres / 2) / (0.5 * yres))
-
 int main(int argc, char ** argv) {
 	using namespace std;
-	void * img;
+	
+	GLfloat vertices[] = {
+		1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f
+	};
+
+	GLuint indices[] = {
+		0, 1, 3,
+		1, 2, 3
+	};
 
 	// Print controls
 	cout << controls << endl;
@@ -61,11 +107,13 @@ int main(int argc, char ** argv) {
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutCreateWindow("Fractals");
 
-	glutDisplayFunc(draw);
+	glutDisplayFunc(draw_handler);
 	glutIdleFunc(idle_handler);
+	glutReshapeFunc(resize_handler);
 	glutKeyboardFunc(key_handler);
-	glutMouseFunc(bn_handler);
+	glutMouseFunc(button_handler);
 	glutMotionFunc(mouse_handler);
+	glutPassiveMotionFunc(mouse_idle_handler);
 	
 	// Load all library function pointers
     glewExperimental = GL_TRUE;
@@ -74,189 +122,151 @@ int main(int argc, char ** argv) {
         return -1;
     } 
 
-	// load the 1D palette texture
-	glBindTexture(GL_TEXTURE_1D, 1);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 
-	if (!(img = load_image("pal.ppm", 0, 0))) { // pal.ppm is used for texture
-		return EXIT_FAILURE;
-	}
-	glTexImage1D(GL_TEXTURE_1D, 0, 4, 256, 0, GL_BGRA, GL_UNSIGNED_BYTE, img); // Load image to GPU
-	delete img; // CPU ram no longer needs image
+	glBindVertexArray(VAO);
 
-	glEnable(GL_TEXTURE_1D); // Turn on the texture
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// load and set the shader
-	if (!(prog = setup_shader("mbrot.glsl"))) {
-		return EXIT_FAILURE;
-	}
-	set_uniform1i(prog, "iter", iter); // Tell shader that we are currently doing 70 iterations
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+
+	// Create Shaders
+	mbrot_vertex.create();
+	mbrot_fragment.create();
+	julia_vertex.create();
+	julia_fragment.create();
+
+	// Create Programs
+	mandelbrot.create();
+	julia.create();
+
+	// Set up camera
+	projection = glm::perspective(glm::radians(fov),
+		800.0f / 600.0f, 0.1f, 100.0f);
+	view = glm::lookAt(camera_pos, camera_target, up);
+	
+	glUseProgram(mandelbrot.getId());
 	cout << "Set to mandelbrot" << endl;
-
+	
 	glViewport(0,0,800,600); // Tell GPU where to draw to and window size
 	glutMainLoop(); // Enter callback loop
 	return 0;
 }
 
-void draw(void) {
-	fractal == 0 ? mDraw() : jDraw(); // Call Mandelbrot or Julia draw methods
-}
+void draw_handler(void) {
+	GLint uniform_loc;
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-void mDraw(void) {
-	set_uniform2f(prog, "center", mcx, mcy); // Set center
-	set_uniform1f(prog, "scale", mscale); // Set scale
+	glUseProgram(mandelbrot.getId());
 
-	glBegin(GL_QUADS); // Draw rectangular window to write to
-	glTexCoord2f(0, 0);
-	glVertex2f(-1, -1);
-	glTexCoord2f(1, 0);
-	glVertex2f(1, -1);
-	glTexCoord2f(1, 1);
-	glVertex2f(1, 1);
-	glTexCoord2f(0, 1);
-	glVertex2f(-1, 1);
-	glEnd();
+	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "model_transform");
+	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, glm::value_ptr(model_transform));
 
-	glutSwapBuffers();
-}
+	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "view");
+	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, glm::value_ptr(view));
 
-void jDraw(void) {
-	if (!interactive) { // Animate
-		float t = (float)get_msec() / 1000.0f;
-		jcx = (sin(cos(t / 10.0f) * 10.0f) + cos(t * 2.0f) / 4.0f + sin(t * 3.0f) / 6.0f) * 0.8f;
-		jcy = (cos(sin(t / 10.0f) * 10.0f) + sin(t * 2.0f) / 4.0f + cos(t * 3.0f) / 6.0f) * 0.8f;
-	}
-	set_uniform2f(prog, "c", jcx, jcy);
+	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "projection");
+	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, glm::value_ptr(projection));
 
-	glBegin(GL_QUADS); // Draw window to write to
-	glTexCoord2f(0, 0);
-	glVertex2f(-1, -1);
-	glTexCoord2f(1, 0);
-	glVertex2f(1, -1);
-	glTexCoord2f(1, 1);
-	glVertex2f(1, 1);
-	glTexCoord2f(0, 1);
-	glVertex2f(-1, 1);
-	glEnd();
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 
 	glutSwapBuffers();
 }
 
 void idle_handler(void) {
-	fractal == 0 ? mIdle_handler() : jIdle_handler();
+	glutPostRedisplay();
 }
 
-void mIdle_handler(void) {
-	glutPostRedisplay(); // Fractal doesn't need to draw while waiting
-}
-
-void jIdle_handler(void) {
-	draw(); // Julia needs to draw for animations
+void resize_handler(int width, int height) {
+	// pass
+	glutPostRedisplay();
 }
 
 void key_handler(unsigned char key, int x, int y) {
 	using namespace std;
+	GLfloat speed = 0.1f;
+
+	cout << "detected " << key << endl;
 	switch (key) { // Keyboard
 	case 27: // ESC
 	case 'q':
 	case 'Q': // Quit
 		exit(0);
 		break;
-	case 'c':
-	case 'C':
-	case 'h':
-	case 'H':
-	case '/':
-	case '?': // help
-		cout << controls << endl;
+	case 'w':
+	case 'W':
+		camera_pos += glm::normalize(glm::cross(camera_front, camera_right))
+			* speed;
+		cout << "responding to " << key << endl;
 		break;
-	case 'M':
-	case 'm': // Switch to mandelbrot mode
-		fractal = 0;
-		prog = setup_shader("mbrot.glsl");
-		set_uniform1i(prog, "iter", iter);
-		cout << "Set to mandelbrot" << endl;
-		glEnable(GL_TEXTURE_1D);
-		glViewport(0, 0, 800, 600);
+	case 's':
+	case 'S':
+		camera_pos -= glm::normalize(glm::cross(camera_front, camera_right))
+			* speed;
+		cout << "responding to " << key << endl;
 		break;
-	case 'J':
-	case 'j': // Switch to Julia mode
-		fractal = 1;
-		prog = setup_shader("julia.glsl");
-		set_uniform1i(prog, "iter", iter);
-		cout << "Set to julia" << endl;
-		glEnable(GL_TEXTURE_1D);
-		glViewport(0, 0, 800, 600);
+	case 'a':
+	case 'A':
+		camera_pos += glm::normalize(glm::cross(camera_front, camera_up))
+			* speed;
+		cout << "responding to " << key << endl;
 		break;
-	case '+':
-	case '=': // Increase iterations
-		if (1) { // allows for less code
-			iter += 10;
-		}
-		else {
-	case '_':
-	case '-': // Decrease iterations
-		iter -= 10;
-		if (iter < 0) iter = 0;
-		}
-		cout << "Iterations: " << iter << endl;
-		set_uniform1i(prog, "iter", iter);
-		break;
-	case ' ': // Toggle julia interactive mode
-		interactive = !interactive;
+	case 'd':
+	case 'D':
+		camera_pos -= glm::normalize(glm::cross(camera_front, camera_up))
+			* speed;
+		cout << "responding to " << key << endl;
 		break;
 	default: // No key was pressed that is of importance
 		break;
 	}
+
+	view = glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
+
+	glutPostRedisplay();
 }
 
-int which_bn; // Button id
-float px, py;
-
-void bn_handler(int bn, int state, int x, int y) {
-	int xres = glutGet(GLUT_WINDOW_WIDTH);
-	int yres = glutGet(GLUT_WINDOW_HEIGHT);
-	px = 2.0f * ((float)x / (float)xres - 0.5f);
-	py = 2.0f * ((float)y / (float)yres - 0.5f);
-	which_bn = bn;
-
-	if (which_bn == 3) { // Scroll up
-		mscale *= 1 - mzoom_factor * 2.0f;
+void button_handler(int bn, int state, int x, int y) {
+	switch (bn) {
+	case 3: // Scroll up
+	//	fov += 1.0f;
+		break;
+	case 4: // Scroll down
+	//	fov -= 1.0f;
+		break;
 	}
-	else if (which_bn == 4) { // Scroll down
-		mscale *= 1 + mzoom_factor * 2.0f;
-	}
+
+	if (fov < 1.0f)
+		fov = 1.0f;
+	if (fov > 179.0f)
+		fov = 179.0f;
+
+	projection = glm::perspective(glm::radians(fov),
+		800.0f / 600.0f, 0.1f, 100.0f);
+
+	glutPostRedisplay();
 }
 
 void mouse_handler(int x, int y) {
-	fractal == 0 ? mMouse_handler(x, y) : jMouse_handler(x, y);
+	//pass
+	glutPostRedisplay();
 }
 
-void mMouse_handler(int x, int y) {
-	int xres = glutGet(GLUT_WINDOW_WIDTH);
-	int yres = glutGet(GLUT_WINDOW_HEIGHT);
-	float fx = 2.0f * ((float)x / (float)xres - 0.5f);
-	float fy = 2.0f * ((float)y / (float)yres - 0.5f);
-
-	if (which_bn == 1) {
-		mcx += (fx - px) * mscale / 2.0f;
-		mcy -= (fy - py) * mscale / 2.0f;
-	}
-	else if (which_bn == 0) {
-		mscale *= (fy - py < 0.0) ? 1 - mzoom_factor : 1 + mzoom_factor;
-	}
-
-	px = fx;
-	py = fy;
-}
-
-void jMouse_handler(int x, int y) {
-	int xres = glutGet(GLUT_WINDOW_WIDTH);
-	int yres = glutGet(GLUT_WINDOW_HEIGHT);
-	if (interactive) { // If interactive mode is on, set C to window coords
-		jcx = (float)PX_TO_RE(x);
-		jcy = (float)PY_TO_IM(yres - y);
-	}
+void mouse_idle_handler(int x, int y) {
+	//pass
+	glutPostRedisplay();
 }
