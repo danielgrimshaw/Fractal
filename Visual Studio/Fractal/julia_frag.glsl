@@ -1,4 +1,10 @@
-uniform sampler1D tex; // Texture
+#version 330 core
+out vec4 color;
+void main() {
+	color = vec4(0.5f, 0.5f, 0.5f, 0.5f);
+}
+
+/*uniform sampler1D tex; // Texture
 uniform vec2 c; // C value (shape)
 uniform int iter; // Iterations
 
@@ -18,4 +24,4 @@ void main() {
 	}
 
 	gl_FragColor = texture1D(tex, (i == iter ? 0.0 : float(i)) / 100.0);
-}
+}*/
