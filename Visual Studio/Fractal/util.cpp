@@ -1,3 +1,26 @@
+/*
+ * util.c
+ * 
+ * Copyright 2015  <Daniel Grimshaw>
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ * 
+ * 
+ */
+
 #if defined(__unix__) || defined(unix)
 #include <time.h>
 #include <sys/time.h>
@@ -9,10 +32,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdint.h>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <new>
 
 #ifndef GLEW_STATIC
 #define GLEW_STATIC
@@ -22,91 +41,64 @@
 
 #include "util.h"
 
-int check_ppm(std::ifstream & fp); // Checks the validity of a P6 ppm image file
-void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz); // Loads a P6 image file
+int check_ppm(FILE * fp); // Checks the validity of a P6 ppm image file
+void * load_ppm(FILE * fp, unsigned long *xsz, unsigned long *ysz); // Loads a P6 image file
 
 unsigned long get_msec(void) { // Returns system run time
 #if defined(__unix__) || defined(unix)
-	static struct timeval timeval, first_timeval;
+		static struct timeval timeval, first_timeval;
 
-	gettimeofday(&timeval, 0);
+		gettimeofday(&timeval, 0);
 
-	if (first_timeval.tv_sec == 0) {
-		first_timeval = timeval;
-		return 0;
-	}
-	return (timeval.tv_sec - first_timeval.tv_sec) * 1000 + (timeval.tv_usec - first_timeval.tv_usec) / 1000;
+		if (first_timeval.tv_sec == 0) {
+			first_timeval = timeval;
+			return 0;
+		}
+		return (timeval.tv_sec - first_timeval.tv_sec) * 1000 + (timeval.tv_usec - first_timeval.tv_usec) / 1000;
 #else
 	return GetTickCount();
 #endif	// __unix__
 }
 
-unsigned int setup_shader(const char *fname) { // Loads, compiles, and tells GPU to use shader
-	using namespace std;
-	unsigned int prog, sdr; // OpenGL IDs
-	char * src_buf; // Code buffer 2
-	int success, linked; // Success flags
-	string str; // Code buffer one
-	ifstream t; // File buffer
+unsigned int setup_shader(const char * vertex_fname,
+		const char * fragment_fname) {
+	// Loads, compiles, and tells GPU to use shaders
+	unsigned int prog, vsdr, fsdr; // OpenGL IDs
+	int linked; // Success flags
 
-	t.open(fname);
-	t.seekg(0, std::ios::end); // Go to the end
-	str.reserve(t.tellg()); // Read location (length of the file) and reserve a string that big
-	t.seekg(0, std::ios::beg); // Go back to the beginning
+	if ((vsdr = compile_vertex(vertex_fname)) == 0) {
+		fprintf(stderr, "Dectected error while compiling vertex shader %s!\n",
+				vertex_fname);
+		return 0;
+	}
 
-	str.assign((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>()); // Assign the entire file to str
-
-	src_buf = new char[str.length() + 1]; // Allocate memory for C-style string
-	src_buf = (char *)str.c_str(); // Assign string
-	src_buf[str.length()] = 0; // Doesn't work without this for some reason
-	t.close();
-
-	sdr = glCreateShader(GL_FRAGMENT_SHADER); // Create a fragment shader
-	glShaderSource(sdr, 1, (const char **)&src_buf, 0); // Use src_buf as the code
-	//delete[] src_buf; // Doesn't work for some reason
-
-	glCompileShader(sdr); // Compile shader
-	glGetShaderiv(sdr, GL_COMPILE_STATUS, &success); // Did it work?
-	if (!success) {
-		int info_len; // No.
-		char *info_log;
-
-		glGetShaderiv(sdr, GL_INFO_LOG_LENGTH, &info_len); // Read size of log
-		if (info_len > 0) {
-			if (!(info_log = new char[info_len + 1])) { // User needs significantly more RAM
-				cout << "Unable to allocate info_log (util.cpp: line 90)" << endl;
-				return 0;
-			}
-			glGetShaderInfoLog(sdr, info_len, 0, info_log); // Get info log
-			cout << "shader compilation failed: " << info_log << endl;
-			delete[] info_log;
-		}
-		else { // There is no info log?
-			cout << "shader compilation failed" << endl;
-		}
+	if ((fsdr = compile_fragment(fragment_fname)) == 0) {
+		fprintf(stderr, "Dectected error while compiling fragment shader %s!\n",
+				fragment_fname);
 		return 0;
 	}
 
 	prog = glCreateProgram(); // Allocate space on the GPU for a program
-	glAttachShader(prog, sdr); // Program needs the compiled code
+	glAttachShader(prog, vsdr); // Program needs the compiled code
+	glAttachShader(prog, fsdr);
 	glLinkProgram(prog); // Makes the program executable
 	glGetProgramiv(prog, GL_LINK_STATUS, &linked); // Did it work?
 	if (!linked) {
 		int info_len; // no
-		char *info_log;
+		char * info_log;
 
-		glGetShaderiv(sdr, GL_INFO_LOG_LENGTH, &info_len); // Get info log size
+		glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &info_len); // Get info log size
 		if (info_len > 0) {
 			if (!(info_log = new char[info_len + 1])) { // User needs more RAM
-				cout << "Unable to allocate info_log (util.cpp: line 90)" << endl;
+				fprintf(stderr,
+						"Unable to allocate info_log (util.cpp: line 90)\n");
 				return 0;
 			}
-			glGetShaderInfoLog(sdr, info_len, 0, info_log); // Read info log
-			cout << "shader compilation failed: " << info_log << endl;
+			glGetProgramInfoLog(prog, info_len, 0, info_log); // Read info log
+			fprintf(stderr, "Program linking failed: %s\n", info_log);
 			delete[] info_log;
-		}
-		else { // There was no info log?
-			cout << "shader compilation failed" << endl;
+		} else { // There was no info log?
+			fprintf(stderr, "Program linking failed");
 		}
 		return 0;
 	}
@@ -115,21 +107,130 @@ unsigned int setup_shader(const char *fname) { // Loads, compiles, and tells GPU
 	return prog; // returns the program ID
 }
 
-void set_uniform1f(unsigned int prog, const char *name, float val) { // Sets float uniforms
+int compile_vertex(const char * vertex_fname) {
+	// Compile vertex shader and return ID
+	int vsdr, success;
+	unsigned int size;
+	char * src_buf;
+	FILE * buffer; // Vertex shader buffer
+
+	buffer = fopen(vertex_fname, "r");
+	if (buffer == NULL) {
+		fprintf(stderr, "Unable to read vertex shader %s!\n", vertex_fname);
+		return 0;
+	}
+	fseek(buffer, 0, SEEK_END);
+	size = ftell(buffer);
+	rewind(buffer);
+
+	src_buf = new char[size + 1];
+	fread(src_buf, size, 1, buffer);
+	if (fclose(buffer) != 0) {
+		printf("Unable to close vertex shader %s!\n", vertex_fname);
+		return 0;
+	}
+
+	src_buf[size] = 0;
+	printf(src_buf);
+
+	vsdr = glCreateShader(GL_VERTEX_SHADER); // Create a vertex shader
+	glShaderSource(vsdr, 1, (const char **) &src_buf, 0); // Use src_buf as the code
+
+	glCompileShader(vsdr); // Compile shader
+	glGetShaderiv(vsdr, GL_COMPILE_STATUS, &success); // Did it work?
+	if (!success) {
+		int info_len; // No.
+		char *info_log;
+
+		glGetShaderiv(vsdr, GL_INFO_LOG_LENGTH, &info_len); // Read size of log
+		if (info_len > 0) {
+			if (!(info_log = new char[info_len + 1])) { // User needs significantly more RAM
+				fprintf(stderr,
+						"Unable to allocate info_log (util.c: line 73)\n");
+				return 0;
+			}
+			glGetShaderInfoLog(vsdr, info_len, 0, info_log); // Get info log
+			fprintf(stderr, "Vertex shader compilation failed: %s\n", info_log);
+			delete[] info_log;
+		} else { // There is no info log?
+			fprintf(stderr, "Vertex shader compilation failed");
+		}
+		return 0;
+	}
+
+	return vsdr;
+}
+
+int compile_fragment(const char * fragment_fname) {
+	// Compile Fragment shader and return ID
+	int fsdr, success;
+	unsigned int size;
+	char * src_buf;
+	FILE * buffer; // Fragment shader buffer
+
+	buffer = fopen(fragment_fname, "r");
+	if (buffer == NULL) {
+		fprintf(stderr, "Unable to find fragment shader %s!\n", fragment_fname);
+		return 0;
+	}
+	fseek(buffer, 0, SEEK_END);
+	size = ftell(buffer);
+	rewind(buffer);
+
+	src_buf = new char[size];
+	fread(src_buf, sizeof(char), size, buffer);
+	if (fclose(buffer) != 0) {
+		printf("Unable to close fragment shader %s!\n", fragment_fname);
+		return 0;
+	}
+
+	src_buf[size] = '\0';
+
+	fsdr = glCreateShader(GL_FRAGMENT_SHADER); // Create a vertex shader
+	glShaderSource(fsdr, 1, (const char **) &src_buf, 0); // Use src_buf as the code
+	delete[] src_buf;
+
+	glCompileShader(fsdr); // Compile shader
+	glGetShaderiv(fsdr, GL_COMPILE_STATUS, &success); // Did it work?
+	if (!success) {
+		int info_len; // No.
+		char * info_log;
+
+		glGetShaderiv(fsdr, GL_INFO_LOG_LENGTH, &info_len); // Read size of log
+		if (info_len > 0) {
+			if (!(info_log = new char[info_len + 1])) { // User needs significantly more RAM
+				fprintf(stderr,
+						"Unable to allocate info_log (util.c: line 73)\n");
+				return 0;
+			}
+			glGetShaderInfoLog(fsdr, info_len, 0, info_log); // Get info log
+			fprintf(stderr, "Fragment shader compilation failed: %s\n",
+					info_log);
+			delete[] info_log;
+		} else { // There is no info log?
+			fprintf(stderr, "Fragment shader compilation failed");
+		}
+		return 0;
+	}
+
+	return fsdr;
+}
+
+void set_uniform1f(unsigned int prog, const char * name, float val) { // Sets float uniforms
 	int loc = glGetUniformLocation(prog, name);
 	if (loc != -1) {
 		glUniform1f(loc, val);
 	}
 }
 
-void set_uniform2f(unsigned int prog, const char *name, float v1, float v2) { // Sets vec2 uniforms
+void set_uniform2f(unsigned int prog, const char * name, float v1, float v2) { // Sets vec2 uniforms
 	int loc = glGetUniformLocation(prog, name);
 	if (loc != -1) {
 		glUniform2f(loc, v1, v2);
 	}
 }
 
-void set_uniform1i(unsigned int prog, const char *name, int val) { // Sets int and bool uniforms
+void set_uniform1i(unsigned int prog, const char * name, int val) { // Sets int and bool uniforms
 	int loc = glGetUniformLocation(prog, name);
 	if (loc != -1) {
 		glUniform1i(loc, val);
@@ -159,11 +260,11 @@ void set_uniform1i(unsigned int prog, const char *name, int val) { // Sets int a
 #define PACK_COLOR24(r, g, b) (((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff))
 #endif
 
-void * load_image(const char *fname, unsigned long *xsz, unsigned long *ysz) { // Load a ppm image
-	using namespace std;
-	ifstream fp(fname);
-	if (!(fp.is_open())) { // Cannot open file
-		cout << "failed to open: " << fname << endl;
+void * load_image(const char * fname, unsigned long * xsz,
+		unsigned long * ysz) { // Load a ppm image
+	FILE * fp = fopen(fname, "r");
+	if (fp == NULL) { // Cannot open file
+		fprintf(stderr, "failed to open: %s\n", fname);
 		return 0;
 	}
 
@@ -171,108 +272,132 @@ void * load_image(const char *fname, unsigned long *xsz, unsigned long *ysz) { /
 		return load_ppm(fp, xsz, ysz); // Open the image
 	}
 
-	fp.close();
-	cout << "unsupported image format" << endl; // It is not a P6 ppm image
+	fclose(fp);
+	fprintf(stderr, "unsupported image format\n"); // It is not a P6 ppm image
 	return 0;
 }
 
-int check_ppm(std::ifstream & fp) {
-	using namespace std;
-	fp.seekg(0, ios::beg); // Go to the begining
-	if (fp.get() == 'P' && fp.get() == '6') {
+char * read_file(const char * fname) {
+	FILE * fp = fopen(fname, "r");
+	int size;
+	char * data;
+	if (fp == NULL) {
+		fprintf(stderr, "failed to open: %s\n", fname);
+		return NULL;
+	}
+
+	fseek(fp, 0, SEEK_END);
+	size = ftell(fp);
+	rewind(fp);
+
+	data = new char[size];
+	fread(data, sizeof(char), size, fp);
+	fclose(fp);
+
+	return data;
+}
+
+int check_ppm(FILE * fp) {
+	rewind(fp);
+	if (fgetc(fp) == 'P' && fgetc(fp) == '6') {
 		return 1; // It is a P6 ppm
 	}
 	return 0; // It is not a P6 ppm
 }
 
-static int read_to_wspace(std::ifstream & fp, char * buf, int bsize) { // Read image until whitespace
+static int read_to_wspace(FILE * fp, char * buf, int bsize) { // Read image until whitespace
 	int count = 0;
 	char c;
 
-	while (fp.get(c) && !isspace(c) && count < bsize - 1) {
+	while (c = fgetc(fp) && !isspace(c) && count < bsize - 1) {
 		if (c == '#') {
-			while (fp.get(c) && c != '\n' && c != '\r');
-			c = fp.get();
-			if (c == '\n' || c == '\r') continue;
+			while (c = fgetc(fp) && c != '\n' && c != '\r')
+				;
+			c = fgetc(fp);
+			if (c == '\n' || c == '\r')
+				continue;
 		}
 		*buf++ = c;
 		count++;
 	}
 	*buf = 0;
 
-	while (fp.get(c) && isspace(c));
-	fp.putback(c);
+	while (c = fgetc(fp) && isspace(c))
+		;
+	fputc(c, fp);
 	return count;
 }
 
-void * load_ppm(std::ifstream & fp, unsigned long *xsz, unsigned long *ysz) { // Load P6 PPM
-	using namespace std;
+void * load_ppm(FILE * fp, unsigned long * xsz, unsigned long * ysz) { // Load P6 PPM
 	char buf[64];
 	int bytes, raw;
 	unsigned int w, h, i, sz;
-	uint32_t *pixels;
+	uint32_t * pixels;
 
-	fp.seekg(0, ios::beg);
+	rewind(fp);
 
 	bytes = read_to_wspace(fp, buf, 64);
 	raw = buf[1] == '6';
 
 	if ((bytes = read_to_wspace(fp, buf, 64)) == 0) {
-		fp.close();
+		fclose(fp);
 		return 0;
 	}
 	if (!isdigit(*buf)) {
-		cout << "load_ppm: invalid width: " << buf;
-		fp.close();
+		fprintf(stderr, "load_ppm: invalid width: %s\n", buf);
+		fclose(fp);
 		return 0;
 	}
 	w = atoi(buf);
 
 	if ((bytes = read_to_wspace(fp, buf, 64)) == 0) {
-		fp.close();
+		fclose(fp);
 		return 0;
 	}
 	if (!isdigit(*buf)) {
-		cout << "load_ppm: invalid height: " << buf;
-		fp.close();
+		fprintf(stderr, "load_ppm: invalid height: %s\n", buf);
+		fclose(fp);
 		return 0;
 	}
 	h = atoi(buf);
 
 	if ((bytes = read_to_wspace(fp, buf, 64)) == 0) {
-		fp.close();
+		fclose(fp);
 		return 0;
 	}
 	if (!isdigit(*buf) || atoi(buf) != 255) {
-		cout << "load_ppm: invalid or unsupported max value: " << buf;
-		fp.close();
+		fprintf(stderr, "load_ppm: invalid or unsupported max value: %s\n",
+				buf);
+		fclose(fp);
 		return 0;
 	}
 
 	if (!(pixels = new uint32_t[w * h])) {
-		cout << "malloc failed";
-		fp.close();
+		fprintf(stderr, "Memory allocation failed\n");
+		fclose(fp);
 		return 0;
 	}
 
 	sz = h * w; // size of image
 	for (i = 0; i < sz; i++) {
-		int r = fp.get();
-		int g = fp.get();
-		int b = fp.get();
+		int r = fgetc(fp);
+		int g = fgetc(fp);
+		int b = fgetc(fp);
 
 		if (r == -1 || g == -1 || b == -1) {
-			delete [] pixels;
-			fp.close(); // Image is corrupt
-			cout << "load_ppm: EOF while reading pixel data";
+			delete[] pixels;
+			fclose(fp); // Image is corrupt
+			fprintf(stderr, "load_ppm: EOF while reading pixel data\n");
 			return 0;
 		}
 		pixels[i] = PACK_COLOR24(r, g, b);
 	}
 
-	fp.close();
+	fclose(fp);
 
-	if (xsz) *xsz = w;
-	if (ysz) *ysz = h;
+	if (xsz)
+		*xsz = w;
+	if (ysz)
+		*ysz = h;
 	return pixels;
 }
