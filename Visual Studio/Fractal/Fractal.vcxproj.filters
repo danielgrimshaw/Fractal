@@ -21,17 +21,29 @@
     <ClCompile Include="util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Program.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Program.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="mbrot.glsl">
+    <Text Include="mbrot_frag.glsl">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="julia.glsl">
+    <Text Include="julia_frag.glsl">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
@@ -39,5 +51,13 @@
     <_EmbedManagedResourceFile Include="freeglutd.dll">
       <Filter>Resource Files</Filter>
     </_EmbedManagedResourceFile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mbrot_vert.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="julia_vert.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
