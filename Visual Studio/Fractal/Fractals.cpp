@@ -6,11 +6,6 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 
-// OpenGL Mathematics
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 // Standard Libraries
 #include <iostream>
 
@@ -46,24 +41,6 @@ Program julia = Program(julia_vertex, julia_fragment);
 
 // Buffer Objects
 GLuint VBO, VAO, EBO;
-
-// Camera
-glm::vec3 camera_pos = glm::vec3(0.0f, 0.0f, 3.0f); // Location of Camera
-glm::vec3 camera_target = glm::vec3(0.0f, 0.0f, 0.0f); // Where the camera is pointing
-glm::vec3 camera_dir = glm::normalize(camera_pos - camera_target); // Direction from the origin to the camera
-glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 camera_right = glm::normalize(glm::cross(up, camera_dir));
-glm::vec3 camera_up = glm::cross(camera_dir, camera_right);
-glm::vec3 camera_front = glm::vec3(0.0f, 0.0f, -1.0f);
-
-// Uniforms
-glm::mat4 model_transform; // Transformation for each model on the scene
-glm::mat4 view; // Transformation of the scene for the camera
-glm::mat4 projection; // Projection matrix (simulates perspective)
-
-GLfloat yaw = -90.0f;
-GLfloat pitch = 0.0f;
-GLfloat fov = 45.0f;
 
 // Controls list
 const char * controls = "Controls:\r\n"
@@ -150,11 +127,6 @@ int main(int argc, char ** argv) {
 	// Create Programs
 	mandelbrot.create();
 	julia.create();
-
-	// Set up camera
-	projection = glm::perspective(glm::radians(fov),
-		800.0f / 600.0f, 0.1f, 100.0f);
-	view = glm::lookAt(camera_pos, camera_target, up);
 	
 	glUseProgram(mandelbrot.getId());
 	cout << "Set to mandelbrot" << endl;
@@ -165,20 +137,10 @@ int main(int argc, char ** argv) {
 }
 
 void draw_handler(void) {
-	GLint uniform_loc;
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(mandelbrot.getId());
-
-	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "model_transform");
-	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, glm::value_ptr(model_transform));
-
-	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "view");
-	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, glm::value_ptr(view));
-
-	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "projection");
-	glUniformMatrix4fv(uniform_loc, 1, GL_FALSE, glm::value_ptr(projection));
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -209,33 +171,19 @@ void key_handler(unsigned char key, int x, int y) {
 		break;
 	case 'w':
 	case 'W':
-		camera_pos += glm::normalize(glm::cross(camera_front, camera_right))
-			* speed;
-		cout << "responding to " << key << endl;
 		break;
 	case 's':
 	case 'S':
-		camera_pos -= glm::normalize(glm::cross(camera_front, camera_right))
-			* speed;
-		cout << "responding to " << key << endl;
 		break;
 	case 'a':
 	case 'A':
-		camera_pos += glm::normalize(glm::cross(camera_front, camera_up))
-			* speed;
-		cout << "responding to " << key << endl;
 		break;
 	case 'd':
 	case 'D':
-		camera_pos -= glm::normalize(glm::cross(camera_front, camera_up))
-			* speed;
-		cout << "responding to " << key << endl;
 		break;
 	default: // No key was pressed that is of importance
 		break;
 	}
-
-	view = glm::lookAt(camera_pos, camera_pos + camera_front, camera_up);
 
 	glutPostRedisplay();
 }
@@ -243,20 +191,10 @@ void key_handler(unsigned char key, int x, int y) {
 void button_handler(int bn, int state, int x, int y) {
 	switch (bn) {
 	case 3: // Scroll up
-	//	fov += 1.0f;
 		break;
 	case 4: // Scroll down
-	//	fov -= 1.0f;
 		break;
 	}
-
-	if (fov < 1.0f)
-		fov = 1.0f;
-	if (fov > 179.0f)
-		fov = 179.0f;
-
-	projection = glm::perspective(glm::radians(fov),
-		800.0f / 600.0f, 0.1f, 100.0f);
 
 	glutPostRedisplay();
 }
