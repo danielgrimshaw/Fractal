@@ -50,6 +50,10 @@ std::string mbrot_fragment_name = "mbrot_frag.glsl";
 std::string julia_vertex_name = "julia_vert.glsl";
 std::string julia_fragment_name = "julia_frag.glsl";
 
+// FPS Counter
+double lastTime = 0;
+int nbFrames = 0;
+
 // Shaders
 Shader mbrot_vertex = Shader(GL_VERTEX_SHADER, mbrot_vertex_name);
 Shader mbrot_fragment = Shader(GL_FRAGMENT_SHADER, mbrot_fragment_name);
@@ -153,6 +157,7 @@ int main(int argc, char ** argv) {
 	cout << "Set to mandelbrot" << endl;
 	
 	glViewport(0,0,800,600); // Tell GPU where to draw to and window size
+	lastTime = glutGet(GLUT_ELAPSED_TIME);
 	glutMainLoop(); // Enter callback loop
 	return 0;
 }
@@ -168,6 +173,15 @@ void draw_handler(void) {
 	glBindVertexArray(0);
 
 	glutSwapBuffers();
+	double currentTime = glutGet(GLUT_ELAPSED_TIME);
+	double deltaT = currentTime - oldTime;
+	nbFrames++;
+	if (deltaT >= 1.0){ // If last printf() was more than 1 sec ago
+		// printf and reset timer
+		printf("%f ms/frame\n", 1000.0/double(nbFrames));
+		nbFrames = 0;
+		oldTime = currentTime;
+	}
 }
 
 void idle_handler(void) {
