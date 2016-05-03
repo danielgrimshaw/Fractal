@@ -186,8 +186,8 @@ void updateAspect(void) {
 }
 
 void updateDeltas(void) {
-	delta_X = (max_X - min_X) / 2.0f;
-	delta_Y = (max_Y - min_Y) / 2.0f;
+	delta_X = (max_X - min_X);// / 2.0f;
+	delta_Y = (max_Y - min_Y);// / 2.0f;
 }
 
 void draw_handler(void) {
