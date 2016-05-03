@@ -249,7 +249,6 @@ void key_handler(unsigned char key, int x, int y) {
 	using namespace std;
 	GLfloat speed = 0.1f;
 
-	cout << "detected " << key << endl;
 	switch (key) { // Keyboard
 	case 27: // ESC
 	case 'q':
@@ -258,15 +257,23 @@ void key_handler(unsigned char key, int x, int y) {
 		break;
 	case 'w':
 	case 'W':
+		min_Y += speed;
+		max_Y += speed;
 		break;
 	case 's':
 	case 'S':
+		min_Y -= speed;
+		max_Y -= speed;
 		break;
 	case 'a':
 	case 'A':
+		min_X -= speed;
+		max_X -= speed;
 		break;
 	case 'd':
 	case 'D':
+		min_X += speed;
+		max_X += speed;
 		break;
 	default: // No key was pressed that is of importance
 		break;
