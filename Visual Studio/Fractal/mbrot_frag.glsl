@@ -1,5 +1,4 @@
-#version 330 core
-
+#version 400 core
 in vec4 mbrot_pos;
 out vec4 color;
 
@@ -34,5 +33,5 @@ vec4 iterate_pixel(vec2 position) {
 	return vec4(0, 0, 0, 1);
 }
 void main() {
-	color = iterate_pixel(vec2(mbrot_pos.xy));
+	color = iterate_pixel(mbrot_pos.xy);
 }

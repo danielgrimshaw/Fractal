@@ -35,6 +35,10 @@
 #include "Shader.h"
 #include "Program.h"
 
+// Functions
+void updateAspect(void);
+void updateDeltas(void);
+
 // Handlers
 void draw_handler(void); // Redraw handler
 void idle_handler(void); // Idle handler
@@ -62,6 +66,14 @@ Program julia = Program(julia_vertex, julia_fragment);
 
 // Buffer Objects
 GLuint VBO, VAO, EBO;
+
+// Uniforms
+float min_X = -1.75;
+float max_X = 1.75;
+float min_Y = -1.5;
+float max_Y = 1.5;
+float delta_X;
+float delta_Y;
 
 // Controls list
 const char * controls = "Controls:\r\n"
@@ -153,15 +165,66 @@ int main(int argc, char ** argv) {
 	cout << "Set to mandelbrot" << endl;
 	
 	glViewport(0,0,800,600); // Tell GPU where to draw to and window size
+
+	updateAspect();
+
 	glutMainLoop(); // Enter callback loop
 	return 0;
 }
 
+void updateAspect(void) {
+	double aspect = (double)glutGet(GLUT_WINDOW_WIDTH) / (double)glutGet(GLUT_WINDOW_HEIGHT);
+	if ((max_X - min_X) / (max_Y - min_Y) != aspect) {
+		min_X *= aspect;
+		max_X *= aspect;
+	}
+}
+
+void updateDeltas(void) {
+	delta_X = (max_X - min_X) / 2.0f;
+	delta_Y = (max_Y - min_Y) / 2.0f;
+}
+
+bool once = true;
 void draw_handler(void) {
+	using namespace std;
+	GLint uniform_loc;
+
+	//updateAspect();
+	updateDeltas();
+
+	
+	if (once) {
+		cout << "Min X: " << min_X << endl
+			<< "Max X: " << max_X << endl
+			<< "Min Y: " << min_Y << endl
+			<< "Max Y: " << max_Y << endl
+			<< "Delta X: " << delta_X << endl
+			<< "Delta Y: " << delta_Y << endl;
+		once = false;
+	}
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(mandelbrot.getId());
+
+	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "min_X");
+	glUniform1f(uniform_loc, min_X);
+
+	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "max_X");
+	glUniform1f(uniform_loc, max_X);
+
+	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "min_Y");
+	glUniform1f(uniform_loc, min_Y);
+
+	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "max_Y");
+	glUniform1f(uniform_loc, max_Y);
+
+	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "delta_X");
+	glUniform1f(uniform_loc, delta_X);
+	
+	uniform_loc = glGetUniformLocation(mandelbrot.getId(), "delta_Y");
+	glUniform1f(uniform_loc, delta_Y);
 
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
