@@ -178,7 +178,7 @@ int main(int argc, char ** argv) {
 }
 
 void updateAspect(void) {
-	double aspect = (double)glutGet(GLUT_WINDOW_WIDTH) / (double)glutGet(GLUT_WINDOW_HEIGHT);
+	float aspect = (float)glutGet(GLUT_WINDOW_WIDTH) / (float)glutGet(GLUT_WINDOW_HEIGHT);
 	if ((max_X - min_X) / (max_Y - min_Y) != aspect) {
 		min_X *= aspect;
 		max_X *= aspect;
@@ -227,13 +227,12 @@ void draw_handler(void) {
 	glutSwapBuffers();
 	
 	double currentTime = glutGet(GLUT_ELAPSED_TIME);
-	double deltaT = currentTime - oldTime;
+	double deltaT = currentTime - lastTime;
 	nbFrames++;
-	if (deltaT >= 1.0){ // If last printf() was more than 1 sec ago
-		// printf and reset timer
-		printf("%f ms/frame\n", 1000.0/double(nbFrames));
+	if (deltaT >= 1000){
+		cout << 1000.0/(double)nbFrames << " ms/frame (" << nbFrames << " fps)" << endl;
 		nbFrames = 0;
-		oldTime = currentTime;
+		lastTime = currentTime;
 	}
 }
 
