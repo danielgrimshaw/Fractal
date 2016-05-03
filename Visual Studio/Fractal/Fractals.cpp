@@ -54,6 +54,10 @@ std::string mbrot_fragment_name = "mbrot_frag.glsl";
 std::string julia_vertex_name = "julia_vert.glsl";
 std::string julia_fragment_name = "julia_frag.glsl";
 
+// FPS Counter
+double lastTime = 0;
+int nbFrames = 0;
+
 // Shaders
 Shader mbrot_vertex = Shader(GL_VERTEX_SHADER, mbrot_vertex_name);
 Shader mbrot_fragment = Shader(GL_FRAGMENT_SHADER, mbrot_fragment_name);
@@ -167,6 +171,7 @@ int main(int argc, char ** argv) {
 	glViewport(0,0,800,600); // Tell GPU where to draw to and window size
 
 	updateAspect();
+	lastTime = glutGet(GLUT_ELAPSED_TIME);
 
 	glutMainLoop(); // Enter callback loop
 	return 0;
@@ -185,7 +190,6 @@ void updateDeltas(void) {
 	delta_Y = (max_Y - min_Y) / 2.0f;
 }
 
-bool once = true;
 void draw_handler(void) {
 	using namespace std;
 	GLint uniform_loc;
@@ -193,16 +197,6 @@ void draw_handler(void) {
 	//updateAspect();
 	updateDeltas();
 
-	
-	if (once) {
-		cout << "Min X: " << min_X << endl
-			<< "Max X: " << max_X << endl
-			<< "Min Y: " << min_Y << endl
-			<< "Max Y: " << max_Y << endl
-			<< "Delta X: " << delta_X << endl
-			<< "Delta Y: " << delta_Y << endl;
-		once = false;
-	}
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -231,6 +225,16 @@ void draw_handler(void) {
 	glBindVertexArray(0);
 
 	glutSwapBuffers();
+	
+	double currentTime = glutGet(GLUT_ELAPSED_TIME);
+	double deltaT = currentTime - oldTime;
+	nbFrames++;
+	if (deltaT >= 1.0){ // If last printf() was more than 1 sec ago
+		// printf and reset timer
+		printf("%f ms/frame\n", 1000.0/double(nbFrames));
+		nbFrames = 0;
+		oldTime = currentTime;
+	}
 }
 
 void idle_handler(void) {
