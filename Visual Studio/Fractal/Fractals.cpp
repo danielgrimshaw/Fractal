@@ -283,10 +283,20 @@ void key_handler(unsigned char key, int x, int y) {
 }
 
 void button_handler(int bn, int state, int x, int y) {
+	GLfloat inSpeed = 0.99f;
+	GLfloat outSpeed = 1.01f;
 	switch (bn) {
 	case 3: // Scroll up
+		min_X *= inSpeed;
+		max_X *= inSpeed;
+		min_Y *= inSpeed;
+		max_Y *= inSpeed;
 		break;
 	case 4: // Scroll down
+		min_X *= outSpeed;
+		max_X *= outSpeed;
+		min_Y *= outSpeed;
+		max_Y *= outSpeed;
 		break;
 	}
 

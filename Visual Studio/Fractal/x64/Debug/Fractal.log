@@ -1,10 +1,8 @@
-﻿Build started 5/2/2016 9:29:17 PM.
+﻿Build started 5/3/2016 8:59:14 AM.
      1>Project "D:\Programming\Github\Graphics\Fractal\Visual Studio\Fractal\Fractal.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          D:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /Od /D _CRT_SECURE_NO_WARNINGS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt Fractals.cpp
          Fractals.cpp
-     1>Fractals.cpp(178): warning C4244: '*=' : conversion from 'double' to 'float', possible loss of data
-     1>Fractals.cpp(179): warning C4244: '*=' : conversion from 'double' to 'float', possible loss of data
        Link:
          D:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Programming\Github\Graphics\Fractal\Visual Studio\x64\Debug\Fractal.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\Users\Grimshaw\Documents\Daniel\Fractal\Dependencies\OpenGL\lib opengl32.lib glew32s.lib freeglutd.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /ASSEMBLYRESOURCE:freeglutd.dll /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Programming\Github\Graphics\Fractal\Visual Studio\x64\Debug\Fractal.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Programming\Github\Graphics\Fractal\Visual Studio\x64\Debug\Fractal.lib" /MACHINE:X64 x64\Debug\Fractals.obj
          x64\Debug\Program.obj
@@ -15,4 +13,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.70
+Time Elapsed 00:00:00.66
